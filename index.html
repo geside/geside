@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html style="height:100%;">
+    <head>
+        <meta charset="UTF-8">
+        <title>Geside</title>
+        <link type="text/css" rel="stylesheet" href="css/style.css" />
+        <link type="text/css" rel="stylesheet" href="lib/codemirror.css">
+        <link type="text/css" rel="stylesheet" href="css/theme/material.css">
+        <link type="text/css" rel="stylesheet" href="css/all.min.css">
+
+
+    </head>
+    <body>
+    <div id="tabs">
+    
+        <!--   newTab creates this every run
+   <div class="tab">
+       <input type="radio" id="tab-1" name="tab-group-1" checked>
+       <label for="tab-1"></label>
+       <div class="content">
+
+       </div> 
+   </div>
+        -->
+
+   <button id="new-tab-button" onclick="newTab()">+</button>
+   <!--
+        <button onclick="run()">Run</button>
+        <button onclick="save()">Save</button>
+        <button onclick="ope()">Open</button> 
+   -->
+        <script src="script.js"></script>
+        <script src="lib/codemirror.js"></script>
+        <script src="mode/go/go.js"></script>
+        <script>
+          require('./renderer.js')
+        </script>
+    </body>
+</html>

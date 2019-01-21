@@ -1,0 +1,20 @@
+{
+  "name": "geside",
+  "version": "0.0.1",
+  "description": "cross platform IDE",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/geside/geside",
+  "keywords": [
+    "IDE",
+    "electron",
+    "go language"
+  ],
+  "author": "StarBuckR , abdyek",
+  "license": "",
+  "devDependencies": {
+    "electron": "^4.0.1"
+  }
+}
