@@ -6,14 +6,20 @@ var run = function() {
 }
 
 var saveFile = function() {
-    var path = dialog.showSaveDialog();
-    if(path) {
-        var title = getCurTabTit();
-        if(title) {
-            // kaydetme kodları buraya yazılacak
-            //    title burada kaydedilecek isim
+    var title = getCurTabTit();
+    if(title) {
+        if(path) {
+            // path'i bilinen dosyanın kayıt işlemleri buraya yazılacak
+        } else {
+            var path = dialog.showSaveDialog({
+                title: title,
+            });
+            if(path) {
+                // yeni dosyanın da artık path'i var
+            } else {
+                // saveFileDialog açılmış ama kaydedilecek yer seçilmemiş
+            }
         }
-        // openFile fonksiyonundaki not bu fonksiyon içinde geçerli olabilir
     }
 }
 
@@ -21,48 +27,62 @@ var openFile = function() {
     var path = dialog.showOpenDialog({ properties: ['openFile']});
     if(path) {
         // açma kodları buraya yazılacak
-        // path string olarak gelmiyor olabilir, çoklu seçme özelliği açık değil ama o özelliği açınca dizi olarak geldiğini gördüm
-        // hata ile karşılaşılacak olursa onu bir kontrol etmek gerekebilir
+        // path burada dizi olarak geliyor, o yüzden ona erişmek için path[0]
     }
 }
 
-
-
 var closeTab = function() {
     setTimeout(function(){
-        var parnt = document.getElementById("tabs");
-        var currentTabInd = getCurTabInd();
-        parnt.removeChild(parnt.childNodes[15+currentTabInd]);
-        // removing editor
-        //var removeEleman = function(ind) { for (i = ind; i < dizi.length; i++) { dizi[i] = dizi[i+1];}
-        for (i = currentTabInd; i < editors.length; i++) {
-            editors[i] = editors[i+1]
-        }
-        // ^ removing editor
-        if((getTabLen() === currentTabInd)) {
-            goTab(currentTabInd-1);
+        // kapatma işlemi
+        if(getCurTabPath()) {
+            // yolu olan tab   -- değiştirilip değiştirilmediğini kontrol etmemiz gerekiyor
+            // yoldaki dosyanın içeriği ile editor içerisindeki textin control edilmesi en sağlıklısı sanırım
+            // şimdilik içeriğin değiştirilip değiştirilmediğini kontrol etmeden kapatacak
+            closeTabHard();
         } else {
-            goTab(currentTabInd);
+            if(getCurTabText()) { 
+                // path i olmaması durumunda kullanıcıya bir uyarı mesajı çıkarmak gerekiyor, kayıt etmek isteyip istemediğini sormak için
+                var answer = dialog.showMessageBox({
+                    type:'question',
+                    buttons:["Yes", "No"],
+                    title: "Not Saved File!",
+                    message: "Do you want to save the file?"
+                });
+                if(answer) {
+                    closeTabHard();
+                } else {
+                    saveFile();
+                }
+            } else {
+                closeTabHard();
+            }
         }
     }, 10);
 }
 
-var tabIndex = -1;
-var editors = new Array();
-var newTab = function(title) {
-    tabIndex++;
-    tabIndexStr = "tab-" + tabIndex;
-    title = title || "untitled";
-    /*  sets 
-           newTab creates this every run
-   <div class="tab">
-       <input type="radio" id="tab-1" name="tab-group-1" checked>
-       <label for="tab-1">Untitled</label>
-       <div class="content">
+var closeTabHard = function() {   // tab ı kafasına vurarak kapatma, bunu daha çok  closeTab fonksiyonunun içinde kullanmak için oluşturdum
+    var parnt = document.getElementById("tabs");
+    var currentTabInd = getCurTabInd();
+    parnt.removeChild(parnt.childNodes[15+currentTabInd]);
+    for (i = currentTabInd; i < tabs.length; i++) {
+        tabs[i] =tabs[i+1]
+    }
+    // ^ removing editor
+    if((getTabLen() === currentTabInd)) {
+        goTab(currentTabInd-1);
+    } else {
+        goTab(currentTabInd);
+    }
+}
 
-       </div> 
-   </div>
-    */
+var tabIndex = -1;
+var tabs = new Array();
+var newTab = function(title, text, path) {  // buradaki 3 parametre de opsiyonel,
+    tabIndex++;                            
+    tabIndexStr = "tab-" + tabIndex;
+    text = text || "";
+    title = title || "untitled";
+    path = path || null;
 
     var tab = document.createElement("div");    
     tab.setAttribute("class", "tab");
@@ -84,26 +104,32 @@ var newTab = function(title) {
     tab.appendChild(label);
     tab.appendChild(content);
     document.getElementById("tabs").appendChild(tab);
-    editors[getCurTabInd()] = CodeMirror(content, {
-        theme: "material",
-        lineNumbers: true
-    });
+    tabs[getCurTabInd()] = {
+        editor:CodeMirror(content, {
+            theme: "material",
+            lineNumbers: true,
+            value: text
+        }),
+        path: path,
+        changed: false,
+        language: null,
+    };
     closeTabIcon.setAttribute("onclick", "closeTab()");
 }
-
-// editors[tabNumarası].getValue();  // yazılanları alır
-// getCurText fonksiyonu ile açık olan tabın textine erişebilirsin
-// buradaki editors diziden başka bir şey değil, ben oluşturdum
 
 
 var getCurTabInd = function() {  // get current tab index
     var elements = document.getElementsByClassName('tab');
-    for(var i=0; elements[i]; ++i){
-          if(elements[i].childNodes[0].checked){
-               break;
-          }
+    if(elements.length) {
+        for(var i=0; elements[i]; ++i){
+              if(elements[i].childNodes[0].checked){
+                   break;
+              }
+        }
+        return i;
+    } else {
+        return -1;
     }
-    return i;
 }
 
 var goTab = function(index) {  // focus tab  - indeksini verdiğin taba gidiyor
@@ -118,17 +144,23 @@ var getTabLen = function() {  // get length of tab  - tab sayısını veriyor
     return elements.length;
 }
 
-var getCurText = function() {   // get text of current tab - açık olan tabın textini veriyor
-    if (getCurTabInd() != 0) {
-        return editors[getCurTabInd()].getValue();
+var getCurTabText = function() {   // get text of current tab - açık olan tabın textini veriyor
+    if (getCurTabInd() >= 0) {
+        return tabs[getCurTabInd()].editor.getValue();
     }
 } 
 
-// editors[tabNumarası].setValue("string bir şeyler"); // bu şekilde istediğin tabın textinin değiştirebilirsin
-// editors[tabNumarası].refresh();                     // bu da o editörü yenilemeye yarıyor, text alanını doldurduktan
+var getCurTabPath = function() {
+    if (getCurTabInd() >= 0) {
+        return tabs[getCurTabInd()].path;
+    }
+}
+
+// tabs[tab numarası].editor.setValue("string bir şeyler"); // bu şekilde istediğin tabın textinin değiştirebilirsin
+// tabs[tab numarasi].editor.refresh();                     // bu da o editörü yenilemeye yarıyor, text alanını doldurduktan
 //                                                          // sonra yenilemen tavsiyemdir
 
-var getTitle = function(tabIndex) {     // indeksi girilen tab ın başlığını dönüyor
+var getTitle = function(tabIndex) {     // indeksi girilen tab ın başlığını dönüyor  - pek işe yaramayacak gibi
     var titles = document.getElementsByClassName("title");
     return titles[tabIndex].innerText;
 }
@@ -141,6 +173,7 @@ var getCurTabTit = function() {        // açık tabın başlığını dönüyor
         return false;
     }
 }
+
 
 
 
