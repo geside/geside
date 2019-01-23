@@ -1,16 +1,31 @@
-// for gui
+// for gui 
+const { dialog } = require('electron').remote
 
 var run = function() {
-    console.log("run function runned ");
+    // çalıştırma kodları buraya yazılacak her dilde farklı olduğu için burası biraz karışabilir
 }
 
-var save = function() {
-    console.log("save function runned");
+var saveFile = function() {
+    var path = dialog.showSaveDialog();
+    if(path) {
+        var title = getCurTabTit();
+        if(title) {
+            // kaydetme kodları buraya yazılacak
+            //    title burada kaydedilecek isim
+        }
+        // openFile fonksiyonundaki not bu fonksiyon içinde geçerli olabilir
+    }
 }
 
-var ope = function() {   // sanırım open ismi electron da özel bir anlama geliyor fonksiyon ismini open yapınca sapıtıyor
-    console.log("open function runned");
+var openFile = function() {
+    var path = dialog.showOpenDialog({ properties: ['openFile']});
+    if(path) {
+        // açma kodları buraya yazılacak
+        // path string olarak gelmiyor olabilir, çoklu seçme özelliği açık değil ama o özelliği açınca dizi olarak geldiğini gördüm
+        // hata ile karşılaşılacak olursa onu bir kontrol etmek gerekebilir
+    }
 }
+
 
 
 var closeTab = function() {
@@ -58,6 +73,7 @@ var newTab = function(title) {
     input.checked = true;
     var label = document.createElement("label");
     label.setAttribute("for", tabIndexStr);
+    label.setAttribute("class", "title");
     label.innerHTML = title;                  
     var closeTabIcon = document.createElement("i");
     closeTabIcon.setAttribute("class", "fas fa-times");
@@ -111,6 +127,20 @@ var getCurText = function() {   // get text of current tab - açık olan tabın 
 // editors[tabNumarası].setValue("string bir şeyler"); // bu şekilde istediğin tabın textinin değiştirebilirsin
 // editors[tabNumarası].refresh();                     // bu da o editörü yenilemeye yarıyor, text alanını doldurduktan
 //                                                          // sonra yenilemen tavsiyemdir
+
+var getTitle = function(tabIndex) {     // indeksi girilen tab ın başlığını dönüyor
+    var titles = document.getElementsByClassName("title");
+    return titles[tabIndex].innerText;
+}
+
+var getCurTabTit = function() {        // açık tabın başlığını dönüyor
+    var titles = document.getElementsByClassName("title");
+    if(titles.length) {
+        return titles[getCurTabInd()].innerText;
+    } else {
+        return false;
+    }
+}
 
 
 
