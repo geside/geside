@@ -17,8 +17,10 @@ var run = function() {
 		gesWriteFile("output.txt", "")
 		process.chdir(dirName)
 	}
-
-	nrc.run("compile");
+	if(os.type() == "Windows_NT")
+		nrc.run("compile");
+	else if(os.type() == Linux)
+		nrc.run("./compile");
 	setTimeout(function(){
 		if(fileName) {
     	process.chdir(getCurTabPath())
