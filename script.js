@@ -1,13 +1,43 @@
 // for gui 
 const { dialog } = require('electron').remote
-
+var fs = require("fs");
+var dirName = __dirname
 var run = function() {
-    // çalıştırma kodları buraya yazılacak her dilde farklı olduğu için burası biraz karışabilir
+    var nrc = require('node-run-cmd');
+    var path = require('path');
+
+	var fileName = path.basename(getCurTabTit(), ".c")
+	//dirName += backslash + fileName
+	gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
+
+	dirName = __dirname
+
+	if(dirName != getCurTabPath()){
+		process.chdir(getCurTabPath())
+		gesWriteFile("output.txt", "")
+		process.chdir(dirName)
+	}
+
+	nrc.run("compile");
+	setTimeout(function(){
+		if(fileName) {
+    	process.chdir(getCurTabPath())
+    }
+    else{
+    	console.log("hata")
+    }
+
+    var output = gesReadFile("output.txt")
+    console.log(output)
+    process.chdir(dirName)
+
+	}, 200)
+    
 }
 
 var saveFile = function() {
     var title = getCurTabTit();
-    if(title) {
+    if(title && title != "untitled") {
         if(path) {
             // path'i bilinen dosyanın kayıt işlemleri buraya yazılacak
         } else {
@@ -21,14 +51,99 @@ var saveFile = function() {
             }
         }
     }
+    else if (title == "untitled"){
+    	// eğer + butonuna basarak açtıysak ve tab ismi untitled ise yeni proje açmasını isteyecek ve içindekileri o projedeki dosyaya atacak
+    	newProjectWithoutNewTab("1")
+    	var titles = document.getElementsByClassName("title");
+        titles[getCurTabInd()].innerText = "1" + ".c";
+        process.chdir("1")
+        gesWriteFile("1.c", getCurTabText())
+        process.chdir("..")
+    }
+    else {
+    	console.log("hata");
+    }
 }
 
 var openFile = function() {
-    var path = dialog.showOpenDialog({ properties: ['openFile']});
-    if(path) {
+	var path = require('path');
+
+	var currentDir = __dirname
+    var file = dialog.showOpenDialog({ properties: ['openFile']}) + "";
+    //path.split('\\').pop().split('/').pop();
+    var filename = path.parse(file).base;// main.c gibi dosya ismi
+    dirname = path.dirname(file)// gittiğimiz path
+    //console.log(filename)
+    //console.log(dirname)
+    if(dirname) {
         // açma kodları buraya yazılacak
         // path burada dizi olarak geliyor, o yüzden ona erişmek için path[0]
+    	process.chdir(dirname)
+
+	    var text = gesReadFile(filename)
+	    process.chdir(currentDir)
+	    newTab(filename)
+
+	    tabs[getCurTabInd()].editor.setValue(text)
+	    tabs[getCurTabInd()].path = dirname
+	    tabs[getCurTabInd()].editor.refresh()
     }
+    console.log(dirName);
+    console.log(dirName);
+    console.log(getCurTabPath())
+}
+var x = function() { // deneme fonksiyonu
+	var nrc = require('node-run-cmd');
+    var path = require('path');
+
+	var fileName = path.basename(getCurTabTit(), ".c")
+	
+	gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
+
+	nrc.run("compile.exe");
+
+    if(fileName) {
+    	process.chdir(getCurTabPath())
+    }
+    else{
+    	console.log("hata")
+    }
+
+    var output = gesReadFile("output.txt")
+    console.log(output)
+    process.chdir(dirName)
+}
+
+var newProject = function(name) {
+	var os = require('os');
+
+	if(os.type() == "Windows_NT")
+		var backslash = String.fromCharCode(92)
+	else if(os.type() == "Linux")
+		var backslash = String.fromCharCode(47)
+
+	newTab(name + ".c","", __dirname + backslash + name)
+	//tabs[getCurTabInd()].path = __dirname + name;
+	try {  
+        createNewFolder(name)
+    } catch(e) {
+        console.log('Error:', e.stack);
+    }
+	//createNewFolder(name)
+	process.chdir(name)
+	fileContent = getCurTabText();
+	gesWriteFile(name + ".c", fileContent)
+	gesWriteFile("output.txt", "")
+	process.chdir("..")
+}
+
+var newProjectWithoutNewTab = function(name) {
+	createNewFolder(name)
+	process.chdir(name)
+	fileContent = getCurTabText();
+	gesWriteFile(name + ".c", fileContent)
+	gesWriteFile("output.txt", "")
+	process.chdir("..")
 }
 
 var closeTab = function() {
@@ -174,6 +289,25 @@ var getCurTabTit = function() {        // açık tabın başlığını dönüyor
     }
 }
 
+var gesWriteFile = function(filename, content) {
+	fs.writeFile(filename , content, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+    }); 
+}
 
+var gesReadFile = function(filename) {
+	try {  
+        var data = fs.readFileSync(filename, 'utf8'); // txt dosyasının tamamını okuyup data'ya eşitliyor
+    } catch(e) {
+        console.log('Error:', e.stack);
+    }
+    return data.toString()
+}
 
-
+var createNewFolder = function(name) {
+	fs.mkdir(name, { recursive: true }, (err) => {
+  		if (err) throw err;
+	});
+}

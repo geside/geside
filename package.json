@@ -16,5 +16,10 @@
   "license": "",
   "devDependencies": {
     "electron": "^4.0.1"
+  },
+  "dependencies": {
+    "mkdirp": "^0.5.1",
+    "node-run-cmd": "^1.0.1",
+    "os": "^0.1.1"
   }
 }
