@@ -73,13 +73,12 @@ var compile = function() {
 	    	console.log('stdout: ', stdout);
 
 	    	fs.unlink(fileName + ".exe", function(err){
-			if(err) throw err;
-			console.log("Exe file deleted!");
+				if(err) throw err;
+				console.log("Exe file deleted!");
 			});
 	    	process.chdir(dirName);
 		});
 		}, 200)
-		
 	}
 	else if(os.type() == "Linux"){
 		nrc.run("gcc " +fileName +".c "+ " -o " + fileName)
@@ -91,9 +90,9 @@ var compile = function() {
 		    }
 	    	console.log('stdout: ', stdout);
 
-	    	fs.unlink(fileName, function(err){
+	    	fs.unlink(getCurTabPath() + "/" + fileName, function(err){
 	    		if(err) throw err;
-	    		console("Exe file deleted!");
+	    		console.log("Exe file deleted!");
 	    	});
 	    	process.chdir(dirName);
 		});
