@@ -1,26 +1,27 @@
 // for gui 
 const { dialog } = require('electron').remote
 var fs = require("fs");
+var nrc = require('node-run-cmd');
+var path = require('path');
+var os = require('os');
 var dirName = __dirname
 var run = function() {
-    var nrc = require('node-run-cmd');
-    var path = require('path');
-
 	var fileName = path.basename(getCurTabTit(), ".c")
 	//dirName += backslash + fileName
 	gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
 
 	dirName = __dirname
 
-	if(dirName != getCurTabPath()){
-		process.chdir(getCurTabPath())
-		gesWriteFile("output.txt", "")
-		process.chdir(dirName)
-	}
+	
+	process.chdir(getCurTabPath())
+	gesWriteFile("output.txt", "")
+	process.chdir(dirName)
+	
 	if(os.type() == "Windows_NT")
 		nrc.run("compile");
-	else if(os.type() == Linux)
+	else if(os.type() == "Linux")
 		nrc.run("./compile");
+
 	setTimeout(function(){
 		if(fileName) {
     	process.chdir(getCurTabPath())
@@ -31,26 +32,86 @@ var run = function() {
 
     var output = gesReadFile("output.txt")
     console.log(output)
+
+    fs.unlink('output.txt',function (err){
+    if (err) throw err;
+    // if no error, file has been deleted successfully
+    console.log('File deleted!');
+	})
+	console.log(fileName)
+	if(os.type() == "Windows_NT"){
+		fs.unlink(fileName + ".exe", function(err){
+			if(err) throw err;
+			console.log("Exe file deleted!");
+		})
+	}
+	else if(os.type() == "Linux"){
+		fs.unlink(fileName, function (err){
+	    	if (err) throw err;
+	    		// if no error, file has been deleted successfully
+	    		console.log('Exe file deleted!');
+			})
+	}
     process.chdir(dirName)
 
 	}, 200)
     
 }
+var compile = function() {
+	const exec = require('child_process').exec;
+	
+	process.chdir(getCurTabPath());
+	var fileName = path.basename(getCurTabTit(), ".c")
+	if(os.type() == "Windows_NT"){
+		nrc.run("gcc -o " + fileName + " "+ fileName +".c");
+		setTimeout(function() {
+			const child = exec(fileName , (error, stdout, stderr) => {
+		    if (error) {
+		        console.error('stderr', stderr);
+		        throw error;
+		    }
+	    	console.log('stdout: ', stdout);
 
+	    	fs.unlink(fileName + ".exe", function(err){
+			if(err) throw err;
+			console.log("Exe file deleted!");
+			});
+	    	process.chdir(dirName);
+		});
+		}, 200)
+		
+	}
+	else if(os.type() == "Linux"){
+		nrc.run("gcc " +fileName +".c "+ " -o " + fileName)
+		setTimeout(function() {
+			const child = exec("./" + fileName , (error, stdout, stderr) => {
+		    if (error) {
+		        console.error('stderr', stderr);
+		        throw error;
+		    }
+	    	console.log('stdout: ', stdout);
+
+	    	fs.unlink(fileName, function(err){
+	    		if(err) throw err;
+	    		console("Exe file deleted!");
+	    	});
+	    	process.chdir(dirName);
+		});
+		}, 200)
+}
+}
 var saveFile = function() {
     var title = getCurTabTit();
+    dirName = __dirname;
     if(title && title != "untitled") {
-        if(path) {
+        if(getCurTabPath()) {
             // path'i bilinen dosyanın kayıt işlemleri buraya yazılacak
-        } else {
-            var path = dialog.showSaveDialog({
-                title: title,
-            });
-            if(path) {
-                // yeni dosyanın da artık path'i var
-            } else {
-                // saveFileDialog açılmış ama kaydedilecek yer seçilmemiş
-            }
+            process.chdir(getCurTabPath());
+            gesWriteFile(getCurTabTit(), getCurTabText());
+           	process.chdir(dirName);
+
+        }else {
+        	console.log("There are no path");
         }
     }
     else if (title == "untitled"){
@@ -94,27 +155,6 @@ var openFile = function() {
     console.log(dirName);
     console.log(getCurTabPath())
 }
-var x = function() { // deneme fonksiyonu
-	var nrc = require('node-run-cmd');
-    var path = require('path');
-
-	var fileName = path.basename(getCurTabTit(), ".c")
-	
-	gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
-
-	nrc.run("compile.exe");
-
-    if(fileName) {
-    	process.chdir(getCurTabPath())
-    }
-    else{
-    	console.log("hata")
-    }
-
-    var output = gesReadFile("output.txt")
-    console.log(output)
-    process.chdir(dirName)
-}
 
 var newProject = function(name) {
 	var os = require('os');
@@ -131,12 +171,13 @@ var newProject = function(name) {
     } catch(e) {
         console.log('Error:', e.stack);
     }
-	//createNewFolder(name)
-	process.chdir(name)
-	fileContent = getCurTabText();
-	gesWriteFile(name + ".c", fileContent)
-	gesWriteFile("output.txt", "")
-	process.chdir("..")
+    setTimeout(function(){
+    	process.chdir(name)
+		fileContent = getCurTabText();
+		gesWriteFile(name + ".c", fileContent)
+		//gesWriteFile("output.txt", "")
+		process.chdir("..")
+    }, 200)
 }
 
 var newProjectWithoutNewTab = function(name) {
