@@ -5,10 +5,11 @@ var nrc = require('node-run-cmd');
 var path = require('path');
 var os = require('os');
 var dirName = __dirname
+
 var run = function() {
 	var fileName = path.basename(getCurTabTit(), ".c")
 	//dirName += backslash + fileName
-	gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
+	//gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
 
 	dirName = __dirname
 
@@ -184,7 +185,7 @@ var newProjectWithoutNewTab = function(name) {
 	process.chdir(name)
 	fileContent = getCurTabText();
 	gesWriteFile(name + ".c", fileContent)
-	gesWriteFile("output.txt", "")
+	//gesWriteFile("output.txt", "")
 	process.chdir("..")
 }
 
