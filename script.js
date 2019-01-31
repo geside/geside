@@ -5,7 +5,7 @@ var nrc = require('node-run-cmd');
 var path = require('path');
 var os = require('os');
 var dirName = __dirname
-
+/*
 var run = function() {
 	var fileName = path.basename(getCurTabTit(), ".c")
 	//dirName += backslash + fileName
@@ -57,6 +57,20 @@ var run = function() {
 
 	}, 200)
     
+}*/
+
+document.addEventListener("keydown", function(event) {
+  console.log(event.which);
+  if(event.ctrlKey && event.which == "83"){
+  		saveFile();
+  }
+  if(event.ctrlKey && event.which == "82"){
+  		compile();
+  }
+  	
+});
+var x = function() {
+	alert("hello");
 }
 var compile = function() {
 	const exec = require('child_process').exec;
@@ -72,6 +86,7 @@ var compile = function() {
 		        throw error;
 		    }
 	    	console.log('stdout: ', stdout);
+	    	alert(stdout);
 
 	    	fs.unlink(fileName + ".exe", function(err){
 				if(err) throw err;
@@ -185,7 +200,12 @@ var newProjectWithoutNewTab = function(name) {
 	process.chdir(name)
 	fileContent = getCurTabText();
 	gesWriteFile(name + ".c", fileContent)
-	//gesWriteFile("output.txt", "")
+
+	if(os.type() == "Windows_NT")
+		var backslash = String.fromCharCode(92)
+	else if(os.type() == "Linux")
+		var backslash = String.fromCharCode(47)
+	tabs[getCurTabInd()].path = __dirname + backslash + name;
 	process.chdir("..")
 }
 

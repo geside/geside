@@ -18,6 +18,7 @@
     "electron": "^4.0.1"
   },
   "dependencies": {
+    "keypress": "^0.2.1",
     "mkdirp": "^0.5.1",
     "node-run-cmd": "^1.0.1",
     "os": "^0.1.1"
