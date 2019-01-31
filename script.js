@@ -353,11 +353,14 @@ var getCurTabTit = function() {        // açık tabın başlığını dönüyor
 }
 
 var gesWriteFile = function(filename, content) {
-	fs.writeFile(filename , content, function(err) {
+	// This func giving error when you run from linux
+	/*fs.writeFile(filename , content, function(err) {
         if(err) {
             return console.log(err);
         }
-    }); 
+    }); */
+    fs.writeFileSync(filename, content);
+
 }
 
 var gesReadFile = function(filename) {
