@@ -46,6 +46,23 @@ label i:hover {
     transition: color 0.20s;
 }
 
+.button {
+    display: inline-block;
+    user-select: none;
+    text-align:center;
+    padding:5px 15px;
+    border-radius: .25rem;
+    margin-top: 6px;
+}
+
+#runButton {
+    position: absolute;
+    right:5px;
+    color: #FFF;
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
 /* for tab */
 #tabs {
   position: relative;   

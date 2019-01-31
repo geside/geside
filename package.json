@@ -15,7 +15,7 @@
   "author": "StarBuckR , abdyek",
   "license": "",
   "devDependencies": {
-    "electron": "^4.0.1"
+    "electron": "^4.0.3"
   },
   "dependencies": {
     "mkdirp": "^0.5.1",

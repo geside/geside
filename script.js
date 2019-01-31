@@ -6,6 +6,92 @@ var path = require('path');
 var os = require('os');
 var dirName = __dirname
 
+// for menu-bar
+
+// bu const ve require olayını çözmek gerekir iyice doldu buralar
+const { remote } = require('electron')
+const { Menu, MenuItem } = remote
+
+const menu = new Menu()
+menu.append(new MenuItem({
+    label: 'File',
+    submenu : [
+        {
+            label: "New",
+            click () {
+                newTab();
+            }
+        },
+        {
+            label: "Open",
+            click () {
+                openFile();
+            }
+        },
+        {
+            label: "Save",
+            click() {
+                saveFile();
+            }
+        }
+    ]})
+)
+
+menu.append(new MenuItem({
+    label: 'Edit',
+    submenu : [
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+        { role: "delete" },
+        { role: "selectall" }
+    ]})
+)
+
+menu.append(new MenuItem({
+    label: 'Build',
+    submenu : [
+        {
+            label: "Compile",
+            click () {
+                console.log("compile clicked");
+            }
+        },
+        {
+            label: "Run",
+            click () {
+                console.log("run clicked");
+                compile();
+            }
+        }
+    ]})
+)
+
+menu.append(new MenuItem({
+    label: 'Help',
+    submenu : [
+        {
+            label: "Preferences",
+            click () {
+                console.log("preferences clicked");
+            }
+        },
+        {
+            label: "About",
+            click () {
+                console.log("about clicked");
+            }
+        }
+    ]})
+)
+Menu.setApplicationMenu(menu)
+
+// ^ for menu-bar
+ 
+
 var run = function() {
 	var fileName = path.basename(getCurTabTit(), ".c")
 	//dirName += backslash + fileName
@@ -142,6 +228,7 @@ var openFile = function() {
         // açma kodları buraya yazılacak
         // path burada dizi olarak geliyor, o yüzden ona erişmek için path[0]
     	process.chdir(dirname)
+        console.log("burası çalıştı!")
 
 	    var text = gesReadFile(filename)
 	    process.chdir(currentDir)
@@ -221,7 +308,7 @@ var closeTab = function() {
 var closeTabHard = function() {   // tab ı kafasına vurarak kapatma, bunu daha çok  closeTab fonksiyonunun içinde kullanmak için oluşturdum
     var parnt = document.getElementById("tabs");
     var currentTabInd = getCurTabInd();
-    parnt.removeChild(parnt.childNodes[15+currentTabInd]);
+    parnt.removeChild(parnt.childNodes[16+currentTabInd]);
     for (i = currentTabInd; i < tabs.length; i++) {
         tabs[i] =tabs[i+1]
     }
