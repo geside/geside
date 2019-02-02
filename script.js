@@ -221,6 +221,7 @@ var openFile = function() {
     var file = dialog.showOpenDialog({ properties: ['openFile']}) + "";
     //path.split('\\').pop().split('/').pop();
     var filename = path.parse(file).base;// main.c gibi dosya ismi
+    var extension = path.extname(filename)
     dirname = path.dirname(file)// gittiğimiz path
     //console.log(filename)
     //console.log(dirname)
@@ -232,11 +233,14 @@ var openFile = function() {
 
 	    var text = gesReadFile(filename)
 	    process.chdir(currentDir)
-	    newTab(filename)
+	    newTab(filename, text, dirname, extension)
 
+        // BUNLARI UÇURUCAM
+        /*
 	    tabs[getCurTabInd()].editor.setValue(text)
 	    tabs[getCurTabInd()].path = dirname
 	    tabs[getCurTabInd()].editor.refresh()
+        */
     }
     console.log(dirName);
     console.log(dirName);
@@ -308,7 +312,7 @@ var closeTab = function() {
 var closeTabHard = function() {   // tab ı kafasına vurarak kapatma, bunu daha çok  closeTab fonksiyonunun içinde kullanmak için oluşturdum
     var parnt = document.getElementById("tabs");
     var currentTabInd = getCurTabInd();
-    parnt.removeChild(parnt.childNodes[16+currentTabInd]);
+    parnt.removeChild(parnt.childNodes[5+currentTabInd]);
     for (i = currentTabInd; i < tabs.length; i++) {
         tabs[i] =tabs[i+1]
     }
@@ -322,12 +326,23 @@ var closeTabHard = function() {   // tab ı kafasına vurarak kapatma, bunu daha
 
 var tabIndex = -1;
 var tabs = new Array();
-var newTab = function(title, text, path) {  // buradaki 3 parametre de opsiyonel,
+var newTab = function(title, text, path, extension) {  // buradaki 3 parametre de opsiyonel,
     tabIndex++;                            
-    tabIndexStr = "tab-" + tabIndex;
-    text = text || "";
-    title = title || "untitled";
-    path = path || null;
+    var tabIndexStr = "tab-" + tabIndex;
+    var text = text || "";
+    var title = title || "untitled";
+    var path = path || null;
+    var extension = extension || "none";
+    var language;
+    var langDict = {
+        ".c": "text/x-csrc",
+        /* not now (v1.0)
+        ".py": "python",
+        ".js": "javascript",
+        ".go": "go",
+        */
+    }
+    language = langDict[extension];
 
     var tab = document.createElement("div");    
     tab.setAttribute("class", "tab");
@@ -353,11 +368,13 @@ var newTab = function(title, text, path) {  // buradaki 3 parametre de opsiyonel
         editor:CodeMirror(content, {
             theme: "material",
             lineNumbers: true,
-            value: text
+            value: text,
+            mode: language
         }),
         path: path,
         changed: false,
-        language: null,
+        extension : extension,
+        language : language
     };
     closeTabIcon.setAttribute("onclick", "closeTab()");
 }

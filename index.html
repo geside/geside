@@ -11,7 +11,10 @@
 
     </head>
     <body>
-    <div id="tabs">
+        <div id="tabs">
+            <button id="new-tab-button" onclick="newTab()">+</button>
+            <div id="runButton" class="button" onclick="compile()"><i class="fas fa-play"></i> Run</div>
+        </div>
     
         <!--   newTab creates this every run
    <div class="tab">
@@ -23,15 +26,20 @@
    </div>
         -->
 
-   <button id="new-tab-button" onclick="newTab()">+</button>
-   <div id="runButton" class="button" onclick="compile()"><i class="fas fa-play"></i> Run</div>
    <!--
         <button onclick="save()">Save</button>
         <button onclick="ope()">Open</button> 
    -->
         <script src="script.js"></script>
         <script src="lib/codemirror.js"></script>
+        <script src="mode/clike/clike.js"></script>
+        <!-- not now (v1.0)
         <script src="mode/go/go.js"></script>
+        <script src="mode/javascript/javascript.js"></script>
+        <script src="mode/python/python.js"></script>
+        <script src="mode/css/css.js"></script>
+        <script src="mode/htmlmixed/htmlmixed.js"></script>
+        -->
         <script>
           require('./renderer.js')
         </script>
