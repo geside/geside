@@ -7,6 +7,145 @@ var path = require('path');
 var os = require('os');
 var dirName = __dirname
 
+// for menu-bar
+
+// bu const ve require olayını çözmek gerekir iyice doldu buralar
+const { remote } = require('electron')
+const { Menu, MenuItem } = remote
+
+const menu = new Menu()
+menu.append(new MenuItem({
+    label: 'File',
+    submenu : [
+        {
+            label: "New",
+            click () {
+                newTab();
+            }
+        },
+        {
+            label: "Open",
+            click () {
+                openFile();
+            }
+        },
+        {
+            label: "Save",
+            click() {
+                saveFile();
+            }
+        }
+    ]})
+)
+
+menu.append(new MenuItem({
+    label: 'Edit',
+    submenu : [
+        { role: "undo" },
+        { role: "redo" },
+        { type: "separator" },
+        { role: "cut" },
+        { role: "copy" },
+        { role: "paste" },
+        { role: "delete" },
+        { role: "selectall" }
+    ]})
+)
+
+menu.append(new MenuItem({
+    label: 'Build',
+    submenu : [
+        {
+            label: "Compile",
+            click () {
+                console.log("compile clicked");
+            }
+        },
+        {
+            label: "Run",
+            click () {
+                console.log("run clicked");
+                compile();
+            }
+        }
+    ]})
+)
+
+menu.append(new MenuItem({
+    label: 'Help',
+    submenu : [
+        {
+            label: "Preferences",
+            click () {
+                console.log("preferences clicked");
+            }
+        },
+        {
+            label: "About",
+            click () {
+                console.log("about clicked");
+            }
+        }
+    ]})
+)
+Menu.setApplicationMenu(menu)
+
+// ^ for menu-bar
+ 
+
+var run = function() {
+	var fileName = path.basename(getCurTabTit(), ".c")
+	//dirName += backslash + fileName
+	//gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
+
+	dirName = __dirname
+
+	
+	process.chdir(getCurTabPath())
+	gesWriteFile("output.txt", "")
+	process.chdir(dirName)
+	
+	if(os.type() == "Windows_NT")
+		nrc.run("compile");
+	else if(os.type() == "Linux")
+		nrc.run("./compile");
+
+	setTimeout(function(){
+		if(fileName) {
+    	process.chdir(getCurTabPath())
+    }
+    else{
+    	console.log("hata")
+    }
+
+    var output = gesReadFile("output.txt")
+    console.log(output)
+
+    fs.unlink('output.txt',function (err){
+    if (err) throw err;
+    // if no error, file has been deleted successfully
+    console.log('File deleted!');
+	})
+	console.log(fileName)
+	if(os.type() == "Windows_NT"){
+		fs.unlink(fileName + ".exe", function(err){
+			if(err) throw err;
+			console.log("Exe file deleted!");
+		})
+	}
+	else if(os.type() == "Linux"){
+		fs.unlink(fileName, function (err){
+	    	if (err) throw err;
+	    		// if no error, file has been deleted successfully
+	    		console.log('Exe file deleted!');
+			})
+	}
+    process.chdir(dirName)
+
+	}, 200)
+    
+}
+
 document.addEventListener("keydown", function(event) {// litens every key we pressed for any shortcut or hotkeys.
   console.log(event.which);
   if(event.ctrlKey && event.which == "83"){
@@ -96,14 +235,15 @@ var saveFile = function() {
 var openFile = function() {
 	var currentDir = __dirname
     var file = dialog.showOpenDialog({ properties: ['openFile']}) + "";
-    var filename = path.parse(file).base;// getting file name like 'main.c'
-    dirname = path.dirname(file)// getting file path
+    //path.split('\\').pop().split('/').pop();
+    var filename = path.parse(file).base;// main.c gibi dosya ismi
+    var extension = path.extname(filename)
+    dirname = path.dirname(file)// gittiğimiz path
     if(dirname) {
     	process.chdir(dirname)
-
 	    var text = gesReadFile(filename)
 	    process.chdir(currentDir)
-	    newTab(filename, text, dirname)
+	    newTab(filename, text, dirname, extension)
     }
 }
 
@@ -151,7 +291,7 @@ var closeTab = function() {
 var closeTabHard = function() {// closing tab by using force.
     var parnt = document.getElementById("tabs");
     var currentTabInd = getCurTabInd();
-    parnt.removeChild(parnt.childNodes[15+currentTabInd]);
+    parnt.removeChild(parnt.childNodes[5+currentTabInd]);
     for (i = currentTabInd; i < tabs.length; i++) {
         tabs[i] =tabs[i+1]
     }
@@ -165,17 +305,29 @@ var closeTabHard = function() {// closing tab by using force.
 
 var tabIndex = -1;
 var tabs = new Array();
-var newTab = function(title, text, path) {  // these parameter's are optional.
+var newTab = function(title, text, path, extension) {  // buradaki 3 parametre de opsiyonel,
     tabIndex++;                            
-    tabIndexStr = "tab-" + tabIndex;
-    text = text || "";
-    title = title || "untitled";
-    path = path || null;
+    var tabIndexStr = "tab-" + tabIndex;
+    var text = text || "";
+    var title = title || "untitled";
+    var path = path || null;
+    var extension = extension || "none";
+    var language;
+    var langDict = {
+        ".c": "text/x-csrc",
+        /* not now (v1.0)
+        ".py": "python",
+        ".js": "javascript",
+        ".go": "go",
+        */
+    }
+    language = langDict[extension];
 
     var tab = document.createElement("div");    
     tab.setAttribute("class", "tab");
     var input = document.createElement("input");
     input.setAttribute("type", "radio");
+    input.setAttribute("onclick","contExtForRunButton()");  // for run button hide/visible
     input.setAttribute("id", tabIndexStr);
     input.setAttribute("name", "tab-group-1");
     input.checked = true;
@@ -196,13 +348,16 @@ var newTab = function(title, text, path) {  // these parameter's are optional.
         editor:CodeMirror(content, {
             theme: "material",
             lineNumbers: true,
-            value: text
+            value: text,
+            mode: language
         }),
         path: path,
         changed: false,
-        language: null,
+        extension : extension,
+        language : language
     };
     closeTabIcon.setAttribute("onclick", "closeTab()");
+    contExtForRunButton();  // for run button 
 }
 
 
@@ -295,3 +450,16 @@ var createNewFolder = function(name) {// creating folder
   		if (err) throw err;
 	});
 }
+
+var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyon çalışacak
+    var runButton = document.getElementById("runButton");
+    if(tabs[getCurTabInd()].extension!=".c") {
+        // hide
+        runButton.style.display = "none";
+    } else {
+        // visible
+        runButton.style.display = "inline-block";
+    }
+}
+
+
