@@ -1,65 +1,13 @@
 // for gui 
 const { dialog } = require('electron').remote
+const exec = require('child_process').exec;
 var fs = require("fs");
 var nrc = require('node-run-cmd');
 var path = require('path');
 var os = require('os');
 var dirName = __dirname
-/*
-var run = function() {
-	var fileName = path.basename(getCurTabTit(), ".c")
-	//dirName += backslash + fileName
-	//gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
 
-	dirName = __dirname
-
-	
-	process.chdir(getCurTabPath())
-	gesWriteFile("output.txt", "")
-	process.chdir(dirName)
-	
-	if(os.type() == "Windows_NT")
-		nrc.run("compile");
-	else if(os.type() == "Linux")
-		nrc.run("./compile");
-
-	setTimeout(function(){
-		if(fileName) {
-    	process.chdir(getCurTabPath())
-    }
-    else{
-    	console.log("hata")
-    }
-
-    var output = gesReadFile("output.txt")
-    console.log(output)
-
-    fs.unlink('output.txt',function (err){
-    if (err) throw err;
-    // if no error, file has been deleted successfully
-    console.log('File deleted!');
-	})
-	console.log(fileName)
-	if(os.type() == "Windows_NT"){
-		fs.unlink(fileName + ".exe", function(err){
-			if(err) throw err;
-			console.log("Exe file deleted!");
-		})
-	}
-	else if(os.type() == "Linux"){
-		fs.unlink(fileName, function (err){
-	    	if (err) throw err;
-	    		// if no error, file has been deleted successfully
-	    		console.log('Exe file deleted!');
-			})
-	}
-    process.chdir(dirName)
-
-	}, 200)
-    
-}*/
-
-document.addEventListener("keydown", function(event) {
+document.addEventListener("keydown", function(event) {// litens every key we pressed for any shortcut or hotkeys.
   console.log(event.which);
   if(event.ctrlKey && event.which == "83"){
   		saveFile();
@@ -69,12 +17,8 @@ document.addEventListener("keydown", function(event) {
   }
   	
 });
-var x = function() {
-	alert("hello");
-}
-var compile = function() {
-	const exec = require('child_process').exec;
-	
+var compile = function() {// compiling file using gcc
+	saveFile();
 	process.chdir(getCurTabPath());
 	var fileName = path.basename(getCurTabTit(), ".c")
 	if(os.type() == "Windows_NT"){
@@ -113,14 +57,14 @@ var compile = function() {
 	    	process.chdir(dirName);
 		});
 		}, 200)
+	}
 }
-}
+
 var saveFile = function() {
     var title = getCurTabTit();
     dirName = __dirname;
     if(title && title != "untitled") {
         if(getCurTabPath()) {
-            // path'i bilinen dosyanın kayıt işlemleri buraya yazılacak
             process.chdir(getCurTabPath());
             gesWriteFile(getCurTabTit(), getCurTabText());
            	process.chdir(dirName);
@@ -130,88 +74,54 @@ var saveFile = function() {
         }
     }
     else if (title == "untitled"){
-    	// eğer + butonuna basarak açtıysak ve tab ismi untitled ise yeni proje açmasını isteyecek ve içindekileri o projedeki dosyaya atacak
-    	newProjectWithoutNewTab("1")
     	var titles = document.getElementsByClassName("title");
-        titles[getCurTabInd()].innerText = "1" + ".c";
-        process.chdir("1")
-        gesWriteFile("1.c", getCurTabText())
-        process.chdir("..")
+    	var file = dialog.showSaveDialog({defaultPath: '~/untitled.c'});
+    	var filename = path.parse(file).base;
+    	dirname = path.dirname(file)
+    	console.log(filename);
+    	console.log(dirname);
+    	
+    	tabs[getCurTabInd()].path = dirname;
+        titles[getCurTabInd()].innerText = filename;
+
+        process.chdir(getCurTabPath());
+        createFile(filename, getCurTabText());
+		process.chdir("..")
     }
     else {
-    	console.log("hata");
+    	alert("There has been some error, please try again.");
     }
 }
 
 var openFile = function() {
-	var path = require('path');
-
 	var currentDir = __dirname
     var file = dialog.showOpenDialog({ properties: ['openFile']}) + "";
-    //path.split('\\').pop().split('/').pop();
-    var filename = path.parse(file).base;// main.c gibi dosya ismi
-    dirname = path.dirname(file)// gittiğimiz path
-    //console.log(filename)
-    //console.log(dirname)
+    var filename = path.parse(file).base;// getting file name like 'main.c'
+    dirname = path.dirname(file)// getting file path
     if(dirname) {
-        // açma kodları buraya yazılacak
-        // path burada dizi olarak geliyor, o yüzden ona erişmek için path[0]
     	process.chdir(dirname)
 
 	    var text = gesReadFile(filename)
 	    process.chdir(currentDir)
-	    newTab(filename)
-
-	    tabs[getCurTabInd()].editor.setValue(text)
-	    tabs[getCurTabInd()].path = dirname
-	    tabs[getCurTabInd()].editor.refresh()
+	    newTab(filename, text, dirname)
     }
-    console.log(dirName);
-    console.log(dirName);
-    console.log(getCurTabPath())
 }
 
-var newProject = function(name) {
-	var os = require('os');
+var newProject = function() {
+	var file = dialog.showSaveDialog({defaultPath: '~/untitled.c'});
+	var filename = path.parse(file).base;
+	dirname = path.dirname(file)
+	var currentDir = __dirname;
 
-	if(os.type() == "Windows_NT")
-		var backslash = String.fromCharCode(92)
-	else if(os.type() == "Linux")
-		var backslash = String.fromCharCode(47)
-
-	newTab(name + ".c","", __dirname + backslash + name)
-	//tabs[getCurTabInd()].path = __dirname + name;
-	try {  
-        createNewFolder(name)
-    } catch(e) {
-        console.log('Error:', e.stack);
-    }
-    setTimeout(function(){
-    	process.chdir(name)
-		fileContent = getCurTabText();
-		gesWriteFile(name + ".c", fileContent)
-		//gesWriteFile("output.txt", "")
-		process.chdir("..")
-    }, 200)
-}
-
-var newProjectWithoutNewTab = function(name) {
-	createNewFolder(name)
-	process.chdir(name)
-	fileContent = getCurTabText();
-	gesWriteFile(name + ".c", fileContent)
-
-	if(os.type() == "Windows_NT")
-		var backslash = String.fromCharCode(92)
-	else if(os.type() == "Linux")
-		var backslash = String.fromCharCode(47)
-	tabs[getCurTabInd()].path = __dirname + backslash + name;
-	process.chdir("..")
+	newTab(filename, "", dirname);
+	process.chdir(dirname);
+	createFile(filename, "");
+	process.chdir(currentDir);
 }
 
 var closeTab = function() {
     setTimeout(function(){
-        // kapatma işlemi
+        // closing function
         if(getCurTabPath()) {
             // yolu olan tab   -- değiştirilip değiştirilmediğini kontrol etmemiz gerekiyor
             // yoldaki dosyanın içeriği ile editor içerisindeki textin control edilmesi en sağlıklısı sanırım
@@ -238,7 +148,7 @@ var closeTab = function() {
     }, 10);
 }
 
-var closeTabHard = function() {   // tab ı kafasına vurarak kapatma, bunu daha çok  closeTab fonksiyonunun içinde kullanmak için oluşturdum
+var closeTabHard = function() {// closing tab by using force.
     var parnt = document.getElementById("tabs");
     var currentTabInd = getCurTabInd();
     parnt.removeChild(parnt.childNodes[15+currentTabInd]);
@@ -255,7 +165,7 @@ var closeTabHard = function() {   // tab ı kafasına vurarak kapatma, bunu daha
 
 var tabIndex = -1;
 var tabs = new Array();
-var newTab = function(title, text, path) {  // buradaki 3 parametre de opsiyonel,
+var newTab = function(title, text, path) {  // these parameter's are optional.
     tabIndex++;                            
     tabIndexStr = "tab-" + tabIndex;
     text = text || "";
@@ -310,25 +220,25 @@ var getCurTabInd = function() {  // get current tab index
     }
 }
 
-var goTab = function(index) {  // focus tab  - indeksini verdiğin taba gidiyor
+var goTab = function(index) {  // changing tab according to index
     if (index>=0 && index < getTabLen()) { 
         var elements = document.getElementsByClassName('tab');
         elements[index].childNodes[0].checked = true;
     }
 }
 
-var getTabLen = function() {  // get length of tab  - tab sayısını veriyor
+var getTabLen = function() {  // getting the length of the tab
     var elements = document.getElementsByClassName('tab');
     return elements.length;
 }
 
-var getCurTabText = function() {   // get text of current tab - açık olan tabın textini veriyor
+var getCurTabText = function() {   // getting the text of current the tab 
     if (getCurTabInd() >= 0) {
         return tabs[getCurTabInd()].editor.getValue();
     }
 } 
 
-var getCurTabPath = function() {
+var getCurTabPath = function() {// getting current tab's path
     if (getCurTabInd() >= 0) {
         return tabs[getCurTabInd()].path;
     }
@@ -343,7 +253,7 @@ var getTitle = function(tabIndex) {     // indeksi girilen tab ın başlığın�
     return titles[tabIndex].innerText;
 }
 
-var getCurTabTit = function() {        // açık tabın başlığını dönüyor
+var getCurTabTit = function() { // returning current tab's title.
     var titles = document.getElementsByClassName("title");
     if(titles.length) {
         return titles[getCurTabInd()].innerText;
@@ -354,25 +264,33 @@ var getCurTabTit = function() {        // açık tabın başlığını dönüyor
 
 var gesWriteFile = function(filename, content) {
 	// This func giving error when you run from linux
-	/*fs.writeFile(filename , content, function(err) {
+	/*
+	fs.writeFile(filename , content, function(err) {
         if(err) {
             return console.log(err);
         }
-    }); */
+    }); 
+    */
     fs.writeFileSync(filename, content);
-
 }
 
-var gesReadFile = function(filename) {
+var gesReadFile = function(filename) {// reading the 'filename's content.
 	try {  
-        var data = fs.readFileSync(filename, 'utf8'); // txt dosyasının tamamını okuyup data'ya eşitliyor
+        var data = fs.readFileSync(filename, 'utf8');
     } catch(e) {
         console.log('Error:', e.stack);
     }
     return data.toString()
 }
 
-var createNewFolder = function(name) {
+var createFile = function(filename, content) {// creating file
+	fs.appendFile(filename, content, function (err) {
+	  	if (err) throw err;
+	  	console.log('Saved!');
+	});
+}
+
+var createNewFolder = function(name) {// creating folder
 	fs.mkdir(name, { recursive: true }, (err) => {
   		if (err) throw err;
 	});
