@@ -229,18 +229,9 @@ var openFile = function() {
         // açma kodları buraya yazılacak
         // path burada dizi olarak geliyor, o yüzden ona erişmek için path[0]
     	process.chdir(dirname)
-        console.log("burası çalıştı!")
-
 	    var text = gesReadFile(filename)
 	    process.chdir(currentDir)
 	    newTab(filename, text, dirname, extension)
-
-        // BUNLARI UÇURUCAM
-        /*
-	    tabs[getCurTabInd()].editor.setValue(text)
-	    tabs[getCurTabInd()].path = dirname
-	    tabs[getCurTabInd()].editor.refresh()
-        */
     }
     console.log(dirName);
     console.log(dirName);
@@ -348,6 +339,7 @@ var newTab = function(title, text, path, extension) {  // buradaki 3 parametre d
     tab.setAttribute("class", "tab");
     var input = document.createElement("input");
     input.setAttribute("type", "radio");
+    input.setAttribute("onclick","contExtForRunButton()");  // for run button hide/visible
     input.setAttribute("id", tabIndexStr);
     input.setAttribute("name", "tab-group-1");
     input.checked = true;
@@ -377,6 +369,7 @@ var newTab = function(title, text, path, extension) {  // buradaki 3 parametre d
         language : language
     };
     closeTabIcon.setAttribute("onclick", "closeTab()");
+    contExtForRunButton();  // for run button 
 }
 
 
@@ -458,3 +451,16 @@ var createNewFolder = function(name) {
   		if (err) throw err;
 	});
 }
+
+var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyon çalışacak
+    var runButton = document.getElementById("runButton");
+    if(tabs[getCurTabInd()].extension!=".c") {
+        // hide
+        runButton.style.display = "none";
+    } else {
+        // visible
+        runButton.style.display = "inline-block";
+    }
+}
+
+

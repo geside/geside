@@ -1,1 +1,0 @@
-burası 3. tab
