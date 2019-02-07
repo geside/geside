@@ -289,13 +289,14 @@ var closeTab = function() {
 }
 
 var closeTabHard = function() {// closing tab by using force.
-    var parnt = document.getElementById("tabs");
+    var parnt = document.getElementById("openedTab");
     var currentTabInd = getCurTabInd();
-    parnt.removeChild(parnt.childNodes[5+currentTabInd]);
+    parnt.removeChild(parnt.childNodes[currentTabInd]);
     for (i = currentTabInd; i < tabs.length; i++) {
         tabs[i] =tabs[i+1]
     }
     // ^ removing editor
+    contOverflowTabBar();
     if((getTabLen() === currentTabInd)) {
         goTab(currentTabInd-1);
     } else {
@@ -305,6 +306,8 @@ var closeTabHard = function() {// closing tab by using force.
 
 var tabIndex = -1;
 var tabs = new Array();
+var openedTab = document.createElement("div");
+openedTab.setAttribute("id", "openedTab");
 var newTab = function(title, text, path, extension) {  // buradaki 3 parametre de opsiyonel,
     tabIndex++;                            
     var tabIndexStr = "tab-" + tabIndex;
@@ -343,7 +346,8 @@ var newTab = function(title, text, path, extension) {  // buradaki 3 parametre d
     tab.appendChild(input);
     tab.appendChild(label);
     tab.appendChild(content);
-    document.getElementById("tabs").appendChild(tab);
+    openedTab.appendChild(tab);
+    document.getElementById("tabs").appendChild(openedTab);
     tabs[getCurTabInd()] = {
         editor:CodeMirror(content, {
             theme: "material",
@@ -358,6 +362,7 @@ var newTab = function(title, text, path, extension) {  // buradaki 3 parametre d
     };
     closeTabIcon.setAttribute("onclick", "closeTab()");
     contExtForRunButton();  // for run button 
+    contOverflowTabBar();   // we have to control each call newTab func
 }
 
 
@@ -380,6 +385,7 @@ var goTab = function(index) {  // changing tab according to index
         var elements = document.getElementsByClassName('tab');
         elements[index].childNodes[0].checked = true;
     }
+    contExtForRunButton();
 }
 
 var getTabLen = function() {  // getting the length of the tab
@@ -461,5 +467,38 @@ var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyo
         runButton.style.display = "inline-block";
     }
 }
+
+/* for openedTab's scroll bar */
+var contOverflowTabBar = function() {
+    setOpenedTabWidth();
+    var tabS = document.getElementById("tabs");
+    var contents = document.getElementsByClassName("content");
+    var topPx;
+    if(openedTab.offsetWidth > tabS.offsetWidth) {
+        topPx = "47px";
+    } else {
+        topPx = "43px";
+    }
+    for(i = 0; i<contents.length; i++) {
+        contents[i].style.top = topPx;
+    }
+}
+
+var setOpenedTabWidth = function() {
+    var titles = document.getElementsByClassName("title");
+    var width = 0;
+    for(i = 0 ; i<titles.length; i++) {
+        width += titles[i].offsetWidth;
+    }
+    openedTab.style.width = width + "px";
+}
+
+window.onresize = function(event) {
+    contOverflowTabBar(); // ekranı yeniden boyutlandırma sırasında da kontrol etmemiz gerekiyor
+};
+
+
+/* ^ for openedTab's scroll bar */
+
 
 
