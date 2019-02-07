@@ -1,4 +1,3 @@
-// for gui 
 const { dialog } = require('electron').remote
 const exec = require('child_process').exec;
 var fs = require("fs");
@@ -6,146 +5,7 @@ var nrc = require('node-run-cmd');
 var path = require('path');
 var os = require('os');
 var dirName = __dirname
-
-// for menu-bar
-
-// bu const ve require olayını çözmek gerekir iyice doldu buralar
-const { remote } = require('electron')
-const { Menu, MenuItem } = remote
-
-const menu = new Menu()
-menu.append(new MenuItem({
-    label: 'File',
-    submenu : [
-        {
-            label: "New",
-            click () {
-                newTab();
-            }
-        },
-        {
-            label: "Open",
-            click () {
-                openFile();
-            }
-        },
-        {
-            label: "Save",
-            click() {
-                saveFile();
-            }
-        }
-    ]})
-)
-
-menu.append(new MenuItem({
-    label: 'Edit',
-    submenu : [
-        { role: "undo" },
-        { role: "redo" },
-        { type: "separator" },
-        { role: "cut" },
-        { role: "copy" },
-        { role: "paste" },
-        { role: "delete" },
-        { role: "selectall" }
-    ]})
-)
-
-menu.append(new MenuItem({
-    label: 'Build',
-    submenu : [
-        {
-            label: "Compile",
-            click () {
-                console.log("compile clicked");
-            }
-        },
-        {
-            label: "Run",
-            click () {
-                console.log("run clicked");
-                compile();
-            }
-        }
-    ]})
-)
-
-menu.append(new MenuItem({
-    label: 'Help',
-    submenu : [
-        {
-            label: "Preferences",
-            click () {
-                console.log("preferences clicked");
-            }
-        },
-        {
-            label: "About",
-            click () {
-                console.log("about clicked");
-            }
-        }
-    ]})
-)
-Menu.setApplicationMenu(menu)
-
-// ^ for menu-bar
- 
-
-var run = function() {
-	var fileName = path.basename(getCurTabTit(), ".c")
-	//dirName += backslash + fileName
-	//gesWriteFile("programs.txt", fileName + "\n" + getCurTabPath())
-
-	dirName = __dirname
-
-	
-	process.chdir(getCurTabPath())
-	gesWriteFile("output.txt", "")
-	process.chdir(dirName)
-	
-	if(os.type() == "Windows_NT")
-		nrc.run("compile");
-	else if(os.type() == "Linux")
-		nrc.run("./compile");
-
-	setTimeout(function(){
-		if(fileName) {
-    	process.chdir(getCurTabPath())
-    }
-    else{
-    	console.log("hata")
-    }
-
-    var output = gesReadFile("output.txt")
-    console.log(output)
-
-    fs.unlink('output.txt',function (err){
-    if (err) throw err;
-    // if no error, file has been deleted successfully
-    console.log('File deleted!');
-	})
-	console.log(fileName)
-	if(os.type() == "Windows_NT"){
-		fs.unlink(fileName + ".exe", function(err){
-			if(err) throw err;
-			console.log("Exe file deleted!");
-		})
-	}
-	else if(os.type() == "Linux"){
-		fs.unlink(fileName, function (err){
-	    	if (err) throw err;
-	    		// if no error, file has been deleted successfully
-	    		console.log('Exe file deleted!');
-			})
-	}
-    process.chdir(dirName)
-
-	}, 200)
-    
-}
-
+const shell = require('electron').shell
 document.addEventListener("keydown", function(event) {// litens every key we pressed for any shortcut or hotkeys.
   console.log(event.which);
   if(event.ctrlKey && event.which == "83"){
@@ -163,43 +23,37 @@ var compile = function() {// compiling file using gcc
 	if(os.type() == "Windows_NT"){
 		nrc.run("gcc -o " + fileName + " "+ fileName +".c");
 		setTimeout(function() {
-			const child = exec(fileName , (error, stdout, stderr) => {
-		    if (error) {
-		        console.error('stderr', stderr);
-		        throw error;
-		    }
-	    	console.log('stdout: ', stdout);
-	    	alert(stdout);
+			/*const child = exec(fileName , (error, stdout, stderr) => {
+			    if (error) {
+			        console.error('stderr', stderr);
+			        throw error;
+			    }
+		    	console.log('stdout: ', stdout);
+		    	alert(stdout);
+				
+		    	
+				fs.unlink(fileName + ".exe", function(err){
+					if(err) throw err;
+					console.log("Exe file deleted!");
+				});
 
-	    	fs.unlink(fileName + ".exe", function(err){
-				if(err) throw err;
-				console.log("Exe file deleted!");
-			});
-	    	process.chdir(dirName);
-		});
+		    	process.chdir(dirName);
+		    }); */    
+		    shell.openItem(fileName);
+		    process.chdir(dirName);
 		}, 200)
 	}
 	else if(os.type() == "Linux"){
 		nrc.run("gcc " +fileName +".c "+ " -o " + fileName)
 		setTimeout(function() {
-			const child = exec("./" + fileName , (error, stdout, stderr) => {
-		    if (error) {
-		        console.error('stderr', stderr);
-		        throw error;
-		    }
-	    	console.log('stdout: ', stdout);
-
-	    	fs.unlink(getCurTabPath() + "/" + fileName, function(err){
-	    		if(err) throw err;
-	    		console.log("Exe file deleted!");
-	    	});
+			shell.openItem(fileName);
 	    	process.chdir(dirName);
-		});
 		}, 200)
 	}
 }
 
 var saveFile = function() {
+	tabs[getCurTabInd()].firstContent = getCurTabText();
     var title = getCurTabTit();
     dirName = __dirname;
     if(title && title != "untitled") {
@@ -222,7 +76,7 @@ var saveFile = function() {
     	
     	tabs[getCurTabInd()].path = dirname;
         titles[getCurTabInd()].innerText = filename;
-
+        tabs[getCurTabInd()].extension = path.extname(filename);// getting filename's extension, like '.c'
         process.chdir(getCurTabPath());
         createFile(filename, getCurTabText());
 		process.chdir("..")
@@ -245,15 +99,16 @@ var openFile = function() {
 	    process.chdir(currentDir)
 	    newTab(filename, text, dirname, extension)
     }
+    tabs[getCurTabInd()].firstContent = getCurTabText();
 }
-
 var newProject = function() {
 	var file = dialog.showSaveDialog({defaultPath: '~/untitled.c'});
 	var filename = path.parse(file).base;
 	dirname = path.dirname(file)
 	var currentDir = __dirname;
 
-	newTab(filename, "", dirname);
+	newTab(filename, "", dirname, path.extname(filename));
+
 	process.chdir(dirname);
 	createFile(filename, "");
 	process.chdir(currentDir);
@@ -262,28 +117,24 @@ var newProject = function() {
 var closeTab = function() {
     setTimeout(function(){
         // closing function
-        if(getCurTabPath()) {
+        if(!checkContent()) {
             // yolu olan tab   -- değiştirilip değiştirilmediğini kontrol etmemiz gerekiyor
             // yoldaki dosyanın içeriği ile editor içerisindeki textin control edilmesi en sağlıklısı sanırım
             // şimdilik içeriğin değiştirilip değiştirilmediğini kontrol etmeden kapatacak
-            closeTabHard();
-        } else {
-            if(getCurTabText()) { 
-                // path i olmaması durumunda kullanıcıya bir uyarı mesajı çıkarmak gerekiyor, kayıt etmek isteyip istemediğini sormak için
-                var answer = dialog.showMessageBox({
+            var answer = dialog.showMessageBox({
                     type:'question',
                     buttons:["Yes", "No"],
-                    title: "Not Saved File!",
+                    title: "File Not Saved",
                     message: "Do you want to save the file?"
                 });
                 if(answer) {
                     closeTabHard();
                 } else {
                     saveFile();
+                    closeTabHard();
                 }
-            } else {
-                closeTabHard();
-            }
+        } else {
+            closeTabHard();
         }
     }, 10);
 }
@@ -306,15 +157,18 @@ var closeTabHard = function() {// closing tab by using force.
 
 var tabIndex = -1;
 var tabs = new Array();
+
 var openedTab = document.createElement("div");
 openedTab.setAttribute("id", "openedTab");
-var newTab = function(title, text, path, extension) {  // buradaki 3 parametre de opsiyonel,
+var newTab = function(title, text, path, extension) {  // these parameters are optional,
+
     tabIndex++;                            
     var tabIndexStr = "tab-" + tabIndex;
     var text = text || "";
     var title = title || "untitled";
     var path = path || null;
     var extension = extension || "none";
+    var firstContent;
     var language;
     var langDict = {
         ".c": "text/x-csrc",
@@ -358,7 +212,8 @@ var newTab = function(title, text, path, extension) {  // buradaki 3 parametre d
         path: path,
         changed: false,
         extension : extension,
-        language : language
+        language : language,
+        firstContent: text
     };
     closeTabIcon.setAttribute("onclick", "closeTab()");
     contExtForRunButton();  // for run button 
@@ -468,6 +323,7 @@ var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyo
     }
 }
 
+
 /* for openedTab's scroll bar */
 var contOverflowTabBar = function() {
     setOpenedTabWidth();
@@ -500,5 +356,38 @@ window.onresize = function(event) {
 
 /* ^ for openedTab's scroll bar */
 
+var checkContent = function() {
+	if(tabs[getCurTabInd()].firstContent != getCurTabText()){
+		return false;
+	}
+	else{
+		return true;
+	}
+}
 
-
+window.onbeforeunload = function(e) {
+	for(var i = 0; i < getTabLen(); i++){
+		if(tabs[i].firstContent != tabs[i].editor.getValue()){
+			goTab(i);
+			var answer = dialog.showMessageBox({
+                type:'question',
+                buttons:["Yes", "No"],
+                title: getTitle(i) + " is Not Saved",
+                message: "Do you want to save the file?"
+            });
+            if(!answer){
+            	saveFile();
+            }
+		}
+	}
+	/*
+  	var answer = dialog.showMessageBox({
+	    type:'question',
+	    buttons:["Yes", "No"],
+	    title: "Program is Closing",
+	    message: "Do you want to close the program?"
+	});
+	if(answer)
+		window = null;
+	*/
+};
