@@ -24,16 +24,24 @@ body {
     border-color: #333;
 }
 
-label i {
+label i.fa-times {
     position:absolute;
     right:12px;
     top:15px;
     font-size:12px;
 }
 
-label i:hover {
+label i:hover.fa-times {
     color:#FF6666;
     transition: color 0.20s;
+}
+
+.unsaved {
+  position:absolute;
+  right:110px;
+  top:15px;
+  font-size:10px;
+  display:none;
 }
 
 .button {
@@ -50,17 +58,16 @@ label i:hover {
     right:12px;
     top: 45px;
     color: #FFF;
-    background-color: #28a745;
-    border-color: #28a745;
+    background-color: #466075;
+    border-color: #466075;
     z-index:3;
     display:none;
 }
 
 #runButton:hover {
-    background-color: #21883a;
+    background-color: #6188a8;
     color: #EEE;
     transition: background-color 0.5s ease;
-    cursor: grabbing;
 }
 
 /* for tab */
@@ -101,7 +108,6 @@ label i:hover {
   border: 1px solid 	#232b2b;
 }
 [type=radio] ~ label:hover {
-    cursor: grabbing;
     background-color:#4f5b5d;
     transition: background-color 0.5s ease;
 }
