@@ -1,7 +1,6 @@
 const { dialog } = require('electron').remote
 const exec = require('child_process').exec;
 var fs = require("fs");
-var nrc = require('node-run-cmd');
 var path = require('path');
 var os = require('os');
 var dirName = __dirname
@@ -9,6 +8,7 @@ const shell = require('electron').shell
 // listens every key we pressed
 document.addEventListener("keydown", function(event) {
 	console.log(event.which);
+
   if(event.ctrlKey && event.which == "83"){
   		saveFile();
   }
@@ -444,16 +444,6 @@ window.onbeforeunload = function(e) {
             }
 		}
 	}
-	/*
-  	var answer = dialog.showMessageBox({
-	    type:'question',
-	    buttons:["Yes", "No"],
-	    title: "Program is Closing",
-	    message: "Do you want to close the program?"
-	});
-	if(answer)
-		window = null;
-	*/
 };
 var disp = function(value) {
 	var uns = document.getElementsByClassName("unsaved");
