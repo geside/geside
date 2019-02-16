@@ -2,7 +2,6 @@ const { dialog } = require('electron').remote
 const exec = require('child_process').exec;
 var fs = require("fs");
 var path = require('path');
-var os = require('os');
 var dirName = __dirname
 const shell = require('electron').shell
 // listens every key we pressed
@@ -48,10 +47,10 @@ var compile = function() {// compiling file using gcc
 	process.chdir(getCurTabPath());
 	var fileName = path.basename(getCurTabTit(), ".c")
 
-	if(os.type() == "Windows_NT"){
+	if(process.platform == "win32"){
 		compileCode = "gcc -o " + fileName + " "+ fileName +".c";
 	}
-	else if(os.type() == "Linux"){
+	else if(process.platform == "linux"){
 		compileCode = "gcc " +fileName +".c "+ " -o " + fileName;
 	}
 
