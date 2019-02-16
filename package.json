@@ -9,8 +9,7 @@
   "repository": "https://github.com/geside/geside",
   "keywords": [
     "IDE",
-    "electron",
-    "go language"
+    "electron"
   ],
   "author": "StarBuckR , abdyek",
   "license": "",
