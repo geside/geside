@@ -10,7 +10,7 @@ function createWindow () {
     titleBarStyle: 'hidden',
     width: 800,
     height: 600,
-    icon: __dirname + '/icons/win/app.ico'
+    icon: __dirname + '/icons/geside.png'
   })
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
