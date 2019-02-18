@@ -1,20 +1,20 @@
 const { dialog } = require('electron').remote
 const exec = require('child_process').exec;
 var fs = require("fs");
-var nrc = require('node-run-cmd');
 var path = require('path');
-var os = require('os');
 var dirName = __dirname
 const shell = require('electron').shell
-document.addEventListener("keydown", function(event) {// litens every key we pressed for any shortcut or hotkeys.
-  console.log(event.which);
+// listens every key we pressed
+document.addEventListener("keydown", function(event) {
+	console.log(event.which);
+
   if(event.ctrlKey && event.which == "83"){
   		saveFile();
   }
   if(event.ctrlKey && event.which == "82"){
   		compile();
   }
-
+  
 });
 
 
@@ -25,44 +25,66 @@ var readConfigJson = function() {
 var settings;
 readConfigJson();
 
+  if(event.ctrlKey && event.which == "87"){
+  	closeTab(getCurTabInd());
+  }
+  if(event.ctrlKey && event.which == "9"){
+  	goTab(getCurTabInd() + 1);
+  }
+});
+// controlling for changes every 100ms
+var intervalID = window.setInterval(myCallback, 100);
+function myCallback() {
+ 	var uns = document.getElementsByClassName("unsaved");
+ 	if(getTabLen() > 0){
+	  	if(uns[getCurTabInd()].style.display == "none" && !checkContent())
+	  			disp("block");
+ 	}
+}
+// Opens all tabs before program closed
+window.onload =fileLog;
+function fileLog() {
+	var log = gesReadFile("tabs.log");
+	var log2 = log;
+	logs = log.split("\n");
+	var i = 0;
+	while(logs[i] && i < logs.length){
+		openSavedTab(logs[i++], logs[i++]);
+	}
+}
+
 var compile = function() {// compiling file using gcc
 	saveFile();
 	process.chdir(getCurTabPath());
 	var fileName = path.basename(getCurTabTit(), ".c")
-	if(os.type() == "Windows_NT"){
-		nrc.run("gcc -o " + fileName + " "+ fileName +".c");
-		setTimeout(function() {
-			/*const child = exec(fileName , (error, stdout, stderr) => {
-			    if (error) {
-			        console.error('stderr', stderr);
-			        throw error;
-			    }
-		    	console.log('stdout: ', stdout);
-		    	alert(stdout);
 
+	if(process.platform == "win32"){
+		compileCode = "gcc -o " + fileName + " "+ fileName +".c";
+	}
+	else if(process.platform == "linux"){
+		compileCode = "gcc " +fileName +".c "+ " -o " + fileName;
+	}
 
-				fs.unlink(fileName + ".exe", function(err){
-					if(err) throw err;
-					console.log("Exe file deleted!");
-				});
-
+	const child = exec(compileCode ,(error, stdout, stderr) => {
+		if(error){
+			console.error(stderr);
+			console.log(error);
+			alert("There has been an error! \n\n\n" + stderr);
+			throw error;
+		}
+		else{
+			setTimeout(function(){
+				shell.openItem(fileName);
 		    	process.chdir(dirName);
-		    }); */
-		    shell.openItem(fileName);
-		    process.chdir(dirName);
-		}, 200)
-	}
-	else if(os.type() == "Linux"){
-		nrc.run("gcc " +fileName +".c "+ " -o " + fileName)
-		setTimeout(function() {
-			shell.openItem(fileName);
-	    	process.chdir(dirName);
-		}, 200)
-	}
+			}, 200)
+		}
+		})
 }
 
 var saveFile = function() {
+	saveTabs();// saving all tabs to remember for next opening
 	tabs[getCurTabInd()].firstContent = getCurTabText();
+	disp("none");
     var title = getCurTabTit();
     dirName = __dirname;
     if(title && title != "untitled") {
@@ -102,13 +124,49 @@ var openFile = function() {
     var filename = path.parse(file).base;// main.c gibi dosya ismi
     var extension = path.extname(filename)
     dirname = path.dirname(file)// gittiğimiz path
+
+    var i = 0;
+    var isOpenAlready = false;
+    while(i < getTabLen()){
+    	if(dirname == tabs[i].path && filename == getTitle(i)){
+    		isOpenAlready = true;
+    		goTab(i);
+    		break;
+    	}
+    	i++;
+    }
+    
+    if(dirname && !isOpenAlready) {
+    	process.chdir(dirname)
+	    var text = gesReadFile(filename)
+	    process.chdir(currentDir)
+	    newTab(filename, text, dirname, extension)
+	    tabs[getCurTabInd()].firstContent = getCurTabText();
+	    disp("none");
+    }
+    
+}
+var openSavedTab = function(incomingPath, title) {
+	var currentDir = __dirname
+	var filename = title;
+	var dirname = incomingPath;
+	var extension = path.extname(filename);
+    
     if(dirname) {
     	process.chdir(dirname)
 	    var text = gesReadFile(filename)
 	    process.chdir(currentDir)
 	    newTab(filename, text, dirname, extension)
+	    tabs[getCurTabInd()].firstContent = getCurTabText();
+	    disp("none");
     }
-    tabs[getCurTabInd()].firstContent = getCurTabText();
+}
+var saveTabs = function() {
+	gesWriteFile("tabs.log", "");
+	var i = 0;
+	while(i < getTabLen()){
+		fs.appendFileSync('tabs.log', tabs[i].path + "\n" + getTitle(i++) +"\n");
+	}
 }
 var newProject = function() {
 	var file = dialog.showSaveDialog({defaultPath: '~/untitled.c'});
@@ -117,9 +175,9 @@ var newProject = function() {
 	var currentDir = __dirname;
 
 	newTab(filename, "", dirname, path.extname(filename));
-
 	process.chdir(dirname);
 	createFile(filename, "");
+	disp("none");
 	process.chdir(currentDir);
 }
 
@@ -202,9 +260,16 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
     label.setAttribute("for", tabIndexStr);
     label.setAttribute("class", "title");
     label.innerHTML = title;
+
+	var unsaved = document.createElement("i");
+    unsaved.setAttribute("class", "fas fa-star-of-life unsaved")
+    label.appendChild(unsaved);
+
+
     var closeTabIcon = document.createElement("i");
     closeTabIcon.setAttribute("class", "fas fa-times");
     label.appendChild(closeTabIcon);
+
     var content = document.createElement("div");
     content.setAttribute("class", "content");
     tab.appendChild(input);
@@ -377,6 +442,7 @@ var checkContent = function() {
 }
 
 window.onbeforeunload = function(e) {
+	saveTabs();// saving all tabs to remember for next opening
 	for(var i = 0; i < getTabLen(); i++){
 		if(tabs[i].firstContent != tabs[i].editor.getValue()){
 			goTab(i);
@@ -391,14 +457,13 @@ window.onbeforeunload = function(e) {
             }
 		}
 	}
-	/*
-  	var answer = dialog.showMessageBox({
-	    type:'question',
-	    buttons:["Yes", "No"],
-	    title: "Program is Closing",
-	    message: "Do you want to close the program?"
-	});
-	if(answer)
-		window = null;
-	*/
+
 };
+var disp = function(value) {
+	var uns = document.getElementsByClassName("unsaved");
+	uns[getCurTabInd()].style.display = value;
+}
+var getDisp= function() {
+	var uns = document.getElementsByClassName("unsaved");
+	return uns[getCurTabInd()].style.display
+}
