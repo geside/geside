@@ -59,9 +59,9 @@ menu.append(new MenuItem({
     label: 'Settings',
     submenu : [
         {
-            label: "Preferences",
+            label: "Settings",
             click () {
-                console.log('preferences');
+                openSettings();
             }
         },
         {
