@@ -14,8 +14,17 @@ document.addEventListener("keydown", function(event) {// litens every key we pre
   if(event.ctrlKey && event.which == "82"){
   		compile();
   }
-  	
+
 });
+
+
+// file read
+var readConfigJson = function() {
+    settings = JSON.parse(fs.readFileSync("settings.json", "utf8"));
+}
+var settings;
+readConfigJson();
+
 var compile = function() {// compiling file using gcc
 	saveFile();
 	process.chdir(getCurTabPath());
@@ -30,15 +39,15 @@ var compile = function() {// compiling file using gcc
 			    }
 		    	console.log('stdout: ', stdout);
 		    	alert(stdout);
-				
-		    	
+
+
 				fs.unlink(fileName + ".exe", function(err){
 					if(err) throw err;
 					console.log("Exe file deleted!");
 				});
 
 		    	process.chdir(dirName);
-		    }); */    
+		    }); */
 		    shell.openItem(fileName);
 		    process.chdir(dirName);
 		}, 200)
@@ -73,7 +82,7 @@ var saveFile = function() {
     	dirname = path.dirname(file)
     	console.log(filename);
     	console.log(dirname);
-    	
+
     	tabs[getCurTabInd()].path = dirname;
         titles[getCurTabInd()].innerText = filename;
         tabs[getCurTabInd()].extension = path.extname(filename);// getting filename's extension, like '.c'
@@ -146,6 +155,7 @@ var closeTabHard = function() {// closing tab by using force.
     for (i = currentTabInd; i < tabs.length; i++) {
         tabs[i] =tabs[i+1]
     }
+    tabs.length -= 1;
     // ^ removing editor
     contOverflowTabBar();
     if((getTabLen() === currentTabInd)) {
@@ -162,7 +172,7 @@ var openedTab = document.createElement("div");
 openedTab.setAttribute("id", "openedTab");
 var newTab = function(title, text, path, extension) {  // these parameters are optional,
 
-    tabIndex++;                            
+    tabIndex++;
     var tabIndexStr = "tab-" + tabIndex;
     var text = text || "";
     var title = title || "untitled";
@@ -180,7 +190,7 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
     }
     language = langDict[extension];
 
-    var tab = document.createElement("div");    
+    var tab = document.createElement("div");
     tab.setAttribute("class", "tab");
     var input = document.createElement("input");
     input.setAttribute("type", "radio");
@@ -191,7 +201,7 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
     var label = document.createElement("label");
     label.setAttribute("for", tabIndexStr);
     label.setAttribute("class", "title");
-    label.innerHTML = title;                  
+    label.innerHTML = title;
     var closeTabIcon = document.createElement("i");
     closeTabIcon.setAttribute("class", "fas fa-times");
     label.appendChild(closeTabIcon);
@@ -204,10 +214,11 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
     document.getElementById("tabs").appendChild(openedTab);
     tabs[getCurTabInd()] = {
         editor:CodeMirror(content, {
-            theme: "material",
-            lineNumbers: true,
+            theme: settings["theme"],
+            lineNumbers: settings["lineNumbers"],
             value: text,
-            mode: language
+            mode: language,
+            smartIndent: false
         }),
         path: path,
         changed: false,
@@ -216,7 +227,7 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
         firstContent: text
     };
     closeTabIcon.setAttribute("onclick", "closeTab()");
-    contExtForRunButton();  // for run button 
+    contExtForRunButton();  // for run button
     contOverflowTabBar();   // we have to control each call newTab func
 }
 
@@ -236,7 +247,7 @@ var getCurTabInd = function() {  // get current tab index
 }
 
 var goTab = function(index) {  // changing tab according to index
-    if (index>=0 && index < getTabLen()) { 
+    if (index>=0 && index < getTabLen()) {
         var elements = document.getElementsByClassName('tab');
         elements[index].childNodes[0].checked = true;
     }
@@ -248,11 +259,11 @@ var getTabLen = function() {  // getting the length of the tab
     return elements.length;
 }
 
-var getCurTabText = function() {   // getting the text of current the tab 
+var getCurTabText = function() {   // getting the text of current the tab
     if (getCurTabInd() >= 0) {
         return tabs[getCurTabInd()].editor.getValue();
     }
-} 
+}
 
 var getCurTabPath = function() {// getting current tab's path
     if (getCurTabInd() >= 0) {
@@ -285,13 +296,13 @@ var gesWriteFile = function(filename, content) {
         if(err) {
             return console.log(err);
         }
-    }); 
+    });
     */
     fs.writeFileSync(filename, content);
 }
 
 var gesReadFile = function(filename) {// reading the 'filename's content.
-	try {  
+	try {
         var data = fs.readFileSync(filename, 'utf8');
     } catch(e) {
         console.log('Error:', e.stack);
