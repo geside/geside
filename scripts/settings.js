@@ -5,47 +5,73 @@ var fs = require('fs');
                 {type: 'number', lineDesc: 'color açıklama', e: "onChange", fonki: function() {console.log("merhaba2")}}];
 */
 
-
-var openedSettings = false;
-var settingsTabInd;
+var settingsWin = document.createElement("div");
 
 var closeSettings = function() {
-    openedSettings = false;
+    settingsWin.style.display = "none";
+}
+
+var createSettings = function() {  // will run when the app load
+    var title = document.createElement("h1");
+    settingsWin.setAttribute("id", "settingsWin");
+    title.innerHTML = "<i id='settings-icon' class='fas fa-cog'></i>Settings <i id='settingsCloseIcon' onclick='closeSettings()' class='fas fa-times'> ";
+
+    settingsWin.appendChild(title);
+    var body = document.getElementsByTagName("body");
+    body[0].appendChild(settingsWin);
+
+    var editorRow = createRow(settingsWin, "Editor", "Options about editor");
+    var rowContents = document.getElementsByClassName("rowContent");
+
+    var lineNumber = createOnOffSwitchLine(rowContents[0], "View line numbers");
+
+    // select list - themes
+    var codeMirrorThemes = [ "default", "3024-day", "3024-night", "abcdef", "ambiance", "base16-dark", "base16-light", "bespin", "blackboard", "cobalt", "colorforth", "darcula", "dracula", "duotone-dark", "duotone-light", "eclipse", "elegant", "erlang-dark", "gruvbox-dark", "hopscotch", "icecoder", "idea", "isotope", "lesser-dark", "liquibyte", "lucario", "material", "mbo", "mdn-like", "midnight", "monokai", "neat", "neo", "night", "oceanic-next", "panda-syntax", "paraiso-dark", "paraiso-light", "pastel-on-dark", "railscasts", "rubyblue", "seti", "shadowfox", "solarized", "dark solarized", "light the-matrix", "tomorrow-night-bright", "tomorrow-night-eighties", "ttcn", "twilight", "vibrant-ink", "xq-dark", "xq-light", "yeti", "zenburn"];
+
+    var themeSelect = createSelectList(rowContents[0], codeMirrorThemes, "Themes", "themeSelect");
+    themeSelect.setAttribute("onchange", "themesFunc()");
+    // ^ select list - themes
+
+    // select list - tab size
+    var tabSizeArr = [2,4,8];
+    var tabSizeSelect = createSelectList(rowContents[0], tabSizeArr, "Tab size", "tabSizeSelect");
+    tabSizeSelect.setAttribute("onchange", "tabSizeFunc()");
+
+    getAndApplySettings();
+
+    // controls - getting value from settings variable to elements
+
+        // line number
+        lineNumber.checked = settings["lineNumbers"];
+
+        // theme select
+        var themeText = settings["theme"];
+        var optionIndex;
+        for(i = 0; i<themeSelect.options.length; i++) {
+            if (themeSelect.options[i].text==themeText) {
+                optionIndex = i;
+                break;
+            }
+        }
+        themeSelect.selectedIndex = optionIndex;
+
+        // tab size
+        var tabSizeText = settings["tabSize"];
+        var tabSizeIndex;
+        for(i = 0; i<tabSizeSelect.options.length; i++) {
+            if (tabSizeSelect.options[i].text==tabSizeText) {
+                tabSizeIndex = i;
+                break;
+            }
+        }
+        tabSizeSelect.selectedIndex = tabSizeIndex;
+    // ^ controls
+    lineNumber.setAttribute("onchange", "toogleLineNumbers()");
 }
 
 var openSettings = function() {
-    if(!openedSettings) {
-        newTab("<i id='settings-icon' class='fas fa-cog'></i>Settings");
-
-        var tabInd = getCurTabInd();
-
-        var tabsDiv = document.getElementsByClassName("tab");
-        var settingsTab = tabsDiv[tabInd];
-
-        // removing codemirror in the settings tab
-        var contents = document.getElementsByClassName("content");
-        var codemirrors = document.getElementsByClassName("CodeMirror");
-        contents[tabInd].removeChild(codemirrors[tabInd]);
-
-        contents[tabInd].setAttribute("id", "settingsContent");
-
-        // changing onclick of close icon for the setting tab
-        var divs = document.getElementsByClassName("fas fa-times");
-        divs[tabInd].setAttribute("onclick", "closeSettings(); closeTabHard();");
-
-        // creating  content
-        contents[tabInd].innerHTML = "<div id='inclusiveDiv'></div>";
-
-        // creating settings manuel
-        createSettingItems();
-
-        openedSettings = true;
-        settingsTabInd = tabInd;
-    } else {
-        goTab(settingsTabInd);
-    }
+    settingsWin.style.display = 'block';
 }
-
 
 var createOnOffSwitchLine = function(place, description) {
 
@@ -146,57 +172,6 @@ var onOffSwi;
 // creating settings manuel
 var createSettingItems = function() {
 
-    var editorRow = createRow(inclusiveDiv, "Editor", "Options about editor");
-    var rowContents = document.getElementsByClassName("rowContent");
-
-    var lineNumber = createOnOffSwitchLine(rowContents[0], "View line numbers");
-
-    // select list - themes
-    var codeMirrorThemes = [ "default", "3024-day", "3024-night", "abcdef", "ambiance", "base16-dark", "base16-light", "bespin", "blackboard", "cobalt", "colorforth", "darcula", "dracula", "duotone-dark", "duotone-light", "eclipse", "elegant", "erlang-dark", "gruvbox-dark", "hopscotch", "icecoder", "idea", "isotope", "lesser-dark", "liquibyte", "lucario", "material", "mbo", "mdn-like", "midnight", "monokai", "neat", "neo", "night", "oceanic-next", "panda-syntax", "paraiso-dark", "paraiso-light", "pastel-on-dark", "railscasts", "rubyblue", "seti", "shadowfox", "solarized", "dark solarized", "light the-matrix", "tomorrow-night-bright", "tomorrow-night-eighties", "ttcn", "twilight", "vibrant-ink", "xq-dark", "xq-light", "yeti", "zenburn"];
-
-    var themeSelect = createSelectList(rowContents[0], codeMirrorThemes, "Themes", "themeSelect");
-    themeSelect.setAttribute("onchange", "themesFunc()");
-    // ^ select list - themes
-
-    // select list - tab size
-    var tabSizeArr = [2,4,8];
-    var tabSizeSelect = createSelectList(rowContents[0], tabSizeArr, "Tab size", "tabSizeSelect");
-    tabSizeSelect.setAttribute("onchange", "tabSizeFunc()");
-
-    getAndApplySettings();
-
-    // controls - getting value from settings variable to elements
-
-        // line number
-        lineNumber.checked = settings["lineNumbers"];
-
-        // theme select
-        var themeText = settings["theme"];
-        var optionIndex;
-        for(i = 0; i<themeSelect.options.length; i++) {
-            if (themeSelect.options[i].text==themeText) {
-                optionIndex = i;
-                break;
-            }
-        }
-        themeSelect.selectedIndex = optionIndex;
-
-        // tab size
-        var tabSizeText = settings["tabSize"];
-        var tabSizeIndex;
-        for(i = 0; i<tabSizeSelect.options.length; i++) {
-            if (tabSizeSelect.options[i].text==tabSizeText) {
-                tabSizeIndex = i;
-                break;
-            }
-        }
-        tabSizeSelect.selectedIndex = tabSizeIndex;
-
-
-
-    // ^ controls
-
-    lineNumber.setAttribute("onchange", "toogleLineNumbers()");
 }
 
 // functions for events of elements
@@ -226,3 +201,4 @@ var tabSizeFunc = function() {
     getAndApplySettings();
 }
 
+createSettings();
