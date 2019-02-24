@@ -152,6 +152,22 @@ label i:hover.fa-times {
 
 /* for settings tab */ 
 
+#settingsWin h1 {
+    margin-bottom: 12px;
+}
+
+#settingsWin {
+    width:auto;
+    height: auto;
+    border-radius: 6px;
+    padding: 8px 20px 30px 30px;
+    background-color:#4f5b5d;
+    position: fixed;
+    margin-top:30px;
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
 #settingsContent {
     background-color: #263238;
     border: 1px solid #263238;
@@ -159,10 +175,24 @@ label i:hover.fa-times {
 
 #settings-icon {
     position: relative;
-    left:-6px;
-    top:-1px;
+    font-size:22px;
+    top: -4px;
+    left:-10px;
     color:#98aece;
 }
+
+#settingsCloseIcon {
+    font-size: 18px;
+    position:relative;
+    top: -4px;
+    left: 5px;
+}
+
+#settingsCloseIcon:hover {
+    color:#FF5555;
+    transition: color 0.10s;
+}
+
 
 #inclusiveDiv {
     margin:30px;
