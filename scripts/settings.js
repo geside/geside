@@ -183,6 +183,7 @@ var toogleLineNumbers = function() {
     }
     writeConfigJson(settings);
     getAndApplySettings();
+    closeAndOpenEveryTab();
 }
 
 var themesFunc = function() {
@@ -191,6 +192,7 @@ var themesFunc = function() {
     settings["theme"] = selected;
     writeConfigJson(settings);
     getAndApplySettings();
+    closeAndOpenEveryTab();
 }
 
 var tabSizeFunc = function() {
@@ -199,6 +201,7 @@ var tabSizeFunc = function() {
     settings["tabSize"] = parseInt(selected);
     writeConfigJson(settings);
     getAndApplySettings();
+    closeAndOpenEveryTab();
 }
 
 createSettings();

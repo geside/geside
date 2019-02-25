@@ -164,6 +164,17 @@ var saveTabs = function() {
 		fs.appendFileSync('tabs.log', tabs[i].path + "\n" + getTitle(i++) +"\n");
 	}
 }
+// This func is for settings. When we changed something it has to be simulated real time, so we are closing and opening every tab while changing.
+var closeAndOpenEveryTab = function() {
+	//saveTabs();
+	var i = 0;
+	while(i <= getTabLen()){
+		goTab(i);
+		closeTabHard();
+		i++;
+	}
+	setTimeout(fileLog(), 200);
+}
 var newProject = function() {
 	var file = dialog.showSaveDialog({defaultPath: '~/untitled.c'});
 	var filename = path.parse(file).base;
@@ -279,7 +290,8 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 			value: text,
 			mode: language,
 			smartIndent: false,
-			autoCloseBrackets: true
+			autoCloseBrackets: true,
+			extraKeys: {"Ctrl-Space": "autocomplete"}
 		}),
 		path: path,
 		changed: false,
@@ -385,7 +397,7 @@ var createNewFolder = function(name) {// creating folder
 
 var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyon çalışacak
 	var runButton = document.getElementById("runButton");
-	if(tabs[getCurTabInd()].extension!=".c") {
+	if(getTabLen() > 0 && tabs[getCurTabInd()].extension!=".c") {
 		// hide
 		runButton.style.display = "none";
 	} else {
