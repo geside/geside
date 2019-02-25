@@ -78,7 +78,7 @@ var compile = function() {// compiling file using gcc
 }
 
 var saveFile = function() {
-	saveTabs();// saving all tabs to remember for next opening
+	//saveTabs();// saving all tabs to remember for next opening
 	tabs[getCurTabInd()].firstContent = getCurTabText();
 	disp("none");
 	var title = getCurTabTit();
@@ -166,10 +166,11 @@ var saveTabs = function() {
 }
 // This func is for settings. When we changed something it has to be simulated real time, so we are closing and opening every tab while changing.
 var closeAndOpenEveryTab = function() {
-	//saveTabs();
+	saveTabs();
 	var i = 0;
 	while(i <= getTabLen()){
 		goTab(i);
+		saveFile();
 		closeTabHard();
 		i++;
 	}
