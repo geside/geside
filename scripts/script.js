@@ -52,13 +52,13 @@ function fileLog() {
 var compile = function() {// compiling file using gcc
 	saveFile();
 	process.chdir(getCurTabPath());
-	var fileName = path.basename(getCurTabTit(), ".c")
+	var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension)
 
 	if(process.platform == "win32"){
-		compileCode = "gcc -o " + fileName + " "+ fileName +".c";
+		compileCode = "gcc -o " + fileName + " "+ fileName + tabs[getCurTabInd()].extension;
 	}
 	else if(process.platform == "linux"){
-		compileCode = "gcc " +fileName +".c "+ " -o " + fileName;
+		compileCode = "gcc " +fileName + tabs[getCurTabInd()].extension + " -o " + fileName;
 	}
 
 	const child = exec(compileCode ,(error, stdout, stderr) => {
@@ -83,33 +83,10 @@ var saveFile = function() {
 	disp("none");
 	var title = getCurTabTit();
 	dirName = __dirname;
-	if(title && title != "untitled") {
-		if(getCurTabPath()) {
-			process.chdir(getCurTabPath());
-			gesWriteFile(getCurTabTit(), getCurTabText());
-			process.chdir(dirName);
-
-		}else {
-			console.log("There are no path");
-		}
-	}
-	else if (title == "untitled"){
-		var titles = document.getElementsByClassName("title");
-		var file = dialog.showSaveDialog({defaultPath: '~/untitled.c'});
-		var filename = path.parse(file).base;
-		dirname = path.dirname(file)
-		console.log(filename);
-		console.log(dirname);
-
-		tabs[getCurTabInd()].path = dirname;
-		titles[getCurTabInd()].innerText = filename;
-		tabs[getCurTabInd()].extension = path.extname(filename);// getting filename's extension, like '.c'
+	if(title && getCurTabPath()) {
 		process.chdir(getCurTabPath());
-		createFile(filename, getCurTabText());
-		process.chdir("..")
-	}
-	else {
-		alert("There has been some error, please try again.");
+		gesWriteFile(getCurTabTit(), getCurTabText());
+		process.chdir(dirName);
 	}
 }
 
@@ -180,13 +157,12 @@ var newProject = function() {
 	var file = dialog.showSaveDialog({defaultPath: '~/untitled.c'});
 	var filename = path.parse(file).base;
 	dirname = path.dirname(file)
-	var currentDir = __dirname;
 
 	newTab(filename, "", dirname, path.extname(filename));
 	process.chdir(dirname);
 	createFile(filename, "");
 	disp("none");
-	process.chdir(currentDir);
+	process.chdir(dirname);
 }
 
 var closeTab = function() {
@@ -247,6 +223,7 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 	var language;
 	var langDict = {
 		".c": "text/x-csrc",
+		".cpp": "text/x-csrc"
 		/* not now (v1.0)
 		".py": "python",
 		".js": "javascript",
@@ -398,12 +375,15 @@ var createNewFolder = function(name) {// creating folder
 
 var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyon çalışacak
 	var runButton = document.getElementById("runButton");
-	if(getTabLen() > 0 && tabs[getCurTabInd()].extension!=".c") {
+	if(getTabLen() > 0 && tabs[getCurTabInd()].extension!=".c" && tabs[getCurTabInd()].extension!=".cpp") {
 		// hide
 		runButton.style.display = "none";
 	} else {
 		// visible
 		runButton.style.display = "inline-block";
+	}
+	if(getTabLen() == 0){
+		runButton.style.display = "none";
 	}
 }
 

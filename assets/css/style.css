@@ -39,7 +39,7 @@ label i:hover.fa-times {
 
 .unsaved {
   position:absolute;
-  right:110px;
+  left:10px;
   top:15px;
   font-size:10px;
   display:none;
