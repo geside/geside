@@ -1,7 +1,7 @@
 {
-  "name": "geside",
-  "version": "0.0.1",
-  "description": "cross platform IDE",
+  "name": "Geside",
+  "version": "1.0.0",
+  "description": "Simple IDE",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
@@ -12,7 +12,7 @@
     "electron"
   ],
   "author": "StarBuckR , abdyek",
-  "license": "",
+  "license": "MIT",
   "devDependencies": {
     "electron": "^4.0.3"
   },

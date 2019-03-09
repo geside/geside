@@ -10,7 +10,7 @@ document.addEventListener("keydown", function(event) {
   if(event.ctrlKey && event.which == "83"){
 		saveFile();
   }
-  if(event.ctrlKey && event.which == "82"){
+  if(event.ctrlKey && event.which == "82") {
 		compile();
   }
   if(event.ctrlKey && event.which == "87"){
@@ -50,6 +50,9 @@ function fileLog() {
 }
 
 var compile = function() {// compiling file using gcc
+	if(tabs[getCurTabInd()].extension != ".c"){
+		return;
+	}
 	saveFile();
 	process.chdir(getCurTabPath());
 	var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension)
@@ -222,8 +225,7 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 	var firstContent;
 	var language;
 	var langDict = {
-		".c": "text/x-csrc",
-		".cpp": "text/x-csrc"
+		".c": "text/x-csrc"
 		/* not now (v1.0)
 		".py": "python",
 		".js": "javascript",
@@ -375,7 +377,7 @@ var createNewFolder = function(name) {// creating folder
 
 var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyon çalışacak
 	var runButton = document.getElementById("runButton");
-	if(getTabLen() > 0 && tabs[getCurTabInd()].extension!=".c" && tabs[getCurTabInd()].extension!=".cpp") {
+	if(getTabLen() > 0 && tabs[getCurTabInd()].extension!=".c") {
 		// hide
 		runButton.style.display = "none";
 	} else {
