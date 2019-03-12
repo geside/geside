@@ -1,6 +1,6 @@
 # Geside
 
-**Geside** is a simple IDE made with *electron* and *codemirror*. Basically, it can *Compile & Run* ***C*** fastest way possible.
+**Geside** is a simple IDE made with *electron* and *codemirror*. Basically, it can *Compile & Run* ***C*** and ***C++*** fastest way possible.
 
 
 ## Requirements
