@@ -2,7 +2,6 @@ const { dialog } = require('electron').remote
 const exec = require('child_process').exec;
 var fs = require("fs");
 var path = require('path');
-var dirName = __dirname
 const shell = require('electron').shell
 // listens every key we pressed
 document.addEventListener("keydown", function(event) {
@@ -50,20 +49,27 @@ function fileLog() {
 }
 
 var compile = function() {// compiling file using gcc
-	if(tabs[getCurTabInd()].extension != ".c"){
+	if(tabs[getCurTabInd()].extension != ".c" && tabs[getCurTabInd()].extension != ".cpp"){
 		return;
 	}
 	saveFile();
+	var compiler;
+	if(tabs[getCurTabInd()].extension == ".cpp")
+		compiler = "g++";
+	else if(tabs[getCurTabInd()].extension == ".c")
+		compiler = "gcc";
 	process.chdir(getCurTabPath());
 	var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension)
 
+	var execCode;
 	if(process.platform == "win32"){
-		compileCode = "gcc -o " + fileName + " "+ fileName + tabs[getCurTabInd()].extension;
+		compileCode = compiler + " -o " + fileName + " "+ fileName + tabs[getCurTabInd()].extension;
+		execCode = 'start cmd /c "' + fileName + ' && pause"';
 	}
 	else if(process.platform == "linux"){
-		compileCode = "gcc " +fileName + tabs[getCurTabInd()].extension + " -o " + fileName;
+		compileCode = compiler + " " + fileName + tabs[getCurTabInd()].extension + " -o " + fileName;
 	}
-
+	
 	const child = exec(compileCode ,(error, stdout, stderr) => {
 		if(error){
 			console.error(stderr);
@@ -73,8 +79,9 @@ var compile = function() {// compiling file using gcc
 		}
 		else{
 			setTimeout(function(){
-				shell.openItem(fileName);
-				process.chdir(dirName);
+				//shell.openItem(fileName);
+				exec(execCode);
+				process.chdir(__dirname);
 			}, 200)
 		}
 		})
@@ -85,16 +92,14 @@ var saveFile = function() {
 	tabs[getCurTabInd()].firstContent = getCurTabText();
 	disp("none");
 	var title = getCurTabTit();
-	dirName = __dirname;
 	if(title && getCurTabPath()) {
 		process.chdir(getCurTabPath());
 		gesWriteFile(getCurTabTit(), getCurTabText());
-		process.chdir(dirName);
+		process.chdir(__dirname);
 	}
 }
 
 var openFile = function() {
-	var currentDir = __dirname
 	var file = dialog.showOpenDialog({ properties: ['openFile']}) + "";
 	//path.split('\\').pop().split('/').pop();
 	var filename = path.parse(file).base;// main.c gibi dosya ismi
@@ -115,7 +120,7 @@ var openFile = function() {
 	if(dirname && !isOpenAlready) {
 		process.chdir(dirname)
 		var text = gesReadFile(filename)
-		process.chdir(currentDir)
+		process.chdir(__dirname)
 		newTab(filename, text, dirname, extension)
 		tabs[getCurTabInd()].firstContent = getCurTabText();
 		disp("none");
@@ -123,7 +128,6 @@ var openFile = function() {
 	
 }
 var openSavedTab = function(incomingPath, title) {
-	var currentDir = __dirname
 	var filename = title;
 	var dirname = incomingPath;
 	var extension = path.extname(filename);
@@ -131,13 +135,17 @@ var openSavedTab = function(incomingPath, title) {
 	if(dirname) {
 		process.chdir(dirname)
 		var text = gesReadFile(filename)
-		process.chdir(currentDir)
+		process.chdir(__dirname)
 		newTab(filename, text, dirname, extension)
 		tabs[getCurTabInd()].firstContent = getCurTabText();
 		disp("none");
 	}
 }
 var saveTabs = function() {
+	if(process.cwd() != __dirname){
+		process.chdir(__dirname);
+	}
+
 	gesWriteFile("tabs.log", "");
 	var i = 0;
 	while(i < getTabLen()){
@@ -225,7 +233,8 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 	var firstContent;
 	var language;
 	var langDict = {
-		".c": "text/x-csrc"
+		".c": "text/x-csrc",
+		".cpp": "text/x-csrc"
 		/* not now (v1.0)
 		".py": "python",
 		".js": "javascript",
@@ -377,7 +386,7 @@ var createNewFolder = function(name) {// creating folder
 
 var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyon çalışacak
 	var runButton = document.getElementById("runButton");
-	if(getTabLen() > 0 && tabs[getCurTabInd()].extension!=".c") {
+	if(getTabLen() > 0 && tabs[getCurTabInd()].extension!=".c" && tabs[getCurTabInd()].extension != ".cpp") {
 		// hide
 		runButton.style.display = "none";
 	} else {

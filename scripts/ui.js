@@ -67,7 +67,7 @@ menu.append(new MenuItem({
         {
             label: "About",
             click () {
-                console.log("about clicked");
+                console.log("You clicked About");
             }
         }
     ]})
