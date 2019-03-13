@@ -27,7 +27,7 @@ var readConfigJson = function() {
 var settings;
 readConfigJson();
 
-  
+
 // controlling for changes every 100ms
 var intervalID = window.setInterval(myCallback, 100);
 function myCallback() {
@@ -69,7 +69,7 @@ var compile = function() {// compiling file using gcc
 	else if(process.platform == "linux"){
 		compileCode = compiler + " " + fileName + tabs[getCurTabInd()].extension + " -o " + fileName;
 	}
-	
+
 	const child = exec(compileCode ,(error, stdout, stderr) => {
 		if(error){
 			console.error(stderr);
@@ -116,7 +116,7 @@ var openFile = function() {
 		}
 		i++;
 	}
-	
+
 	if(dirname && !isOpenAlready) {
 		process.chdir(dirname)
 		var text = gesReadFile(filename)
@@ -125,13 +125,13 @@ var openFile = function() {
 		tabs[getCurTabInd()].firstContent = getCurTabText();
 		disp("none");
 	}
-	
+
 }
 var openSavedTab = function(incomingPath, title) {
 	var filename = title;
 	var dirname = incomingPath;
 	var extension = path.extname(filename);
-	
+
 	if(dirname) {
 		process.chdir(dirname)
 		var text = gesReadFile(filename)
@@ -234,12 +234,11 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 	var language;
 	var langDict = {
 		".c": "text/x-csrc",
-		".cpp": "text/x-csrc"
-		/* not now (v1.0)
+		".cpp": "text/x-csrc",
 		".py": "python",
 		".js": "javascript",
 		".go": "go",
-		*/
+        ".html": "htmlmixed",
 	}
 	language = langDict[extension];
 
@@ -288,6 +287,19 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 		language : language,
 		firstContent: text
 	};
+
+    content.onkeydown = function(e) {
+        if(settings.autoAutocomplete) {
+            var ed = tabs[getCurTabInd()].editor
+            if (!ed.state.completionActive) {
+                CodeMirror.commands.autocomplete(ed, null, {completeSingle: false});
+            }
+            if (e.keyCode==27) {
+                ed.closeHint();
+            }
+        }
+    };
+
 	closeTabIcon.setAttribute("onclick", "closeTab()");
 	contExtForRunButton();  // for run button
 	contOverflowTabBar();   // we have to control each call newTab func
@@ -397,7 +409,6 @@ var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyo
 		runButton.style.display = "none";
 	}
 }
-
 
 /* for openedTab's scroll bar */
 var contOverflowTabBar = function() {

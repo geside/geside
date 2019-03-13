@@ -24,6 +24,7 @@ var createSettings = function() {  // will run when the app load
     var rowContents = document.getElementsByClassName("rowContent");
 
     var lineNumber = createOnOffSwitchLine(rowContents[0], "View line numbers");
+    var autoAutocomplete = createOnOffSwitchLine(rowContents[0], "Auto Autocomplation");
 
     // select list - themes
     var codeMirrorThemes = [ "default", "3024-day", "3024-night", "abcdef", "ambiance", "base16-dark", "base16-light", "bespin", "blackboard", "cobalt", "colorforth", "darcula", "dracula", "duotone-dark", "duotone-light", "eclipse", "elegant", "erlang-dark", "gruvbox-dark", "hopscotch", "icecoder", "idea", "isotope", "lesser-dark", "liquibyte", "lucario", "material", "mbo", "mdn-like", "midnight", "monokai", "neat", "neo", "night", "oceanic-next", "panda-syntax", "paraiso-dark", "paraiso-light", "pastel-on-dark", "railscasts", "rubyblue", "seti", "shadowfox", "solarized", "dark solarized", "light the-matrix", "tomorrow-night-bright", "tomorrow-night-eighties", "ttcn", "twilight", "vibrant-ink", "xq-dark", "xq-light", "yeti", "zenburn"];
@@ -43,6 +44,7 @@ var createSettings = function() {  // will run when the app load
 
         // line number
         lineNumber.checked = settings["lineNumbers"];
+        autoAutocomplete.checked = settings["autoAutocomplete"];
 
         // theme select
         var themeText = settings["theme"];
@@ -67,6 +69,7 @@ var createSettings = function() {  // will run when the app load
         tabSizeSelect.selectedIndex = tabSizeIndex;
     // ^ controls
     lineNumber.setAttribute("onchange", "toogleLineNumbers()");
+    autoAutocomplete.setAttribute("onchange", "toogleAutoAutocomplete()");
 }
 
 var openSettings = function() {
@@ -166,6 +169,7 @@ var getAndApplySettings = function() {
     setEditorOption("lineNumbers", settings["lineNumbers"]);
     setEditorOption("firstLineNumber", settings["fistLineNumber"]);
     setEditorOption("tabSize", settings["tabSize"]);
+    setEditorOption("autoAutocomplete", settings["autoAutocomplete"]);
 }
 
 var onOffSwi;
@@ -204,4 +208,16 @@ var tabSizeFunc = function() {
     closeAndOpenEveryTab();
 }
 
+var toogleAutoAutocomplete = function() {
+    if(settings["autoAutocomplete"]) {
+        settings["autoAutocomplete"] = false;
+    } else {
+        settings["autoAutocomplete"] = true;
+    }
+    writeConfigJson(settings);
+    getAndApplySettings();
+    closeAndOpenEveryTab();
+}
+
 createSettings();
+
