@@ -38,6 +38,16 @@ var createSettings = function() {  // will run when the app load
     var tabSizeSelect = createSelectList(rowContents[0], tabSizeArr, "Tab size", "tabSizeSelect");
     tabSizeSelect.setAttribute("onchange", "tabSizeFunc()");
 
+    var tools = createRow(settingsWin, "Tools", "Varios tools");
+    var terminalCommand = createInputText(rowContents[1], "Terminal command", "terminalCommand");
+    terminalCommand.value = settings["terminalCommand"];
+    createLabel(rowContents[1], settings["terminalCommand"] + " ./<fileName>", "viewerTerminalCommand");
+
+    // there isn't any tool in tools for window users so I hid tool row
+    if(process.platform=="win32") {
+        tools.style.display = "none";
+    }
+
     getAndApplySettings();
 
     // controls - getting value from settings variable to elements
@@ -70,6 +80,7 @@ var createSettings = function() {  // will run when the app load
     // ^ controls
     lineNumber.setAttribute("onchange", "toogleLineNumbers()");
     autoAutocomplete.setAttribute("onchange", "toogleAutoAutocomplete()");
+    terminalCommand.setAttribute("onchange", "saveTerminalCommand()");
 }
 
 var openSettings = function() {
@@ -130,6 +141,34 @@ var createSelectList = function(place, list, description, id) {
     return select;
 }
 
+var createInputText = function(place, description, id) {
+    var line = document.createElement("div");
+    var desc = document.createElement("div");
+    var input = document.createElement("input");
+
+    line.setAttribute("class", "line");
+    desc.setAttribute("class", "lineDesc");
+    input.setAttribute("type", "text");
+    input.setAttribute("class", "inputText");
+    input.setAttribute("id", id);
+
+    desc.innerText = description;
+
+    line.appendChild(desc);
+    line.appendChild(input);
+
+    place.appendChild(line);
+    return input;
+}
+
+var createLabel = function(place, text, id) {
+    var line = document.createElement("div");
+    line.innerText = text;
+    line.setAttribute("id", id);
+    place.appendChild(line);
+    return line;
+}
+
 var createRow = function(place, title, description) {
     var rowDiv = document.createElement("div");
     var h2 = document.createElement("h2");
@@ -148,7 +187,7 @@ var createRow = function(place, title, description) {
     rowDiv.appendChild(rowContent);
 
     place.appendChild(rowDiv);
-
+    return rowDiv;
 }
 
 var writeConfigJson = function(settings) {
@@ -214,6 +253,15 @@ var toogleAutoAutocomplete = function() {
     } else {
         settings["autoAutocomplete"] = true;
     }
+    writeConfigJson(settings);
+    getAndApplySettings();
+    closeAndOpenEveryTab();
+}
+
+var saveTerminalCommand = function() {
+    var terminalCommandText = document.getElementById("terminalCommand").value;
+    document.getElementById("viewerTerminalCommand").innerText = terminalCommandText + " ./<fileName>";
+    settings["terminalCommand"] = terminalCommandText;
     writeConfigJson(settings);
     getAndApplySettings();
     closeAndOpenEveryTab();

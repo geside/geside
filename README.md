@@ -19,8 +19,9 @@ After you installed your program, you can start it with:
 ```
 npm start
 ```
-## Important
-Geside is working fully functional in **Windows**. But on the **Linux** side, it can compile, but can't open compiled program. You need to execute compiled program yourself.
+## Configuration
+### Linux
+If you want to run your C file with Run button, you must check terminal command in settings. If you don't have xterm in your computer run button doesn't work so you should read your favorite terminal emulator documentation and entry necessary command in terminal command in settings.
 
 ## LICENSE
 Copyright (c) Geside. All rights reserved.

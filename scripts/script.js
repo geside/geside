@@ -27,7 +27,6 @@ var readConfigJson = function() {
 var settings;
 readConfigJson();
 
-
 // controlling for changes every 100ms
 var intervalID = window.setInterval(myCallback, 100);
 function myCallback() {
@@ -68,6 +67,9 @@ var compile = function() {// compiling file using gcc
 	}
 	else if(process.platform == "linux"){
 		compileCode = compiler + " " + fileName + tabs[getCurTabInd()].extension + " -o " + fileName;
+        execCode = settings["terminalCommand"] + ' ./"' + fileName + ';read"';
+        console.log(execCode);
+        // xterm -e
 	}
 
 	const child = exec(compileCode ,(error, stdout, stderr) => {
@@ -289,12 +291,21 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 	};
 
     content.onkeydown = function(e) {
+        // unnecessary keys for auto complete
         if(settings.autoAutocomplete) {
             var ed = tabs[getCurTabInd()].editor
             if (!ed.state.completionActive) {
                 CodeMirror.commands.autocomplete(ed, null, {completeSingle: false});
             }
-            if (e.keyCode==27) {
+            if (e.keyCode == 27  ||
+                e.keyCode == 13 ||
+                e.keyCode == 16 ||
+                e.keyCode == 17 ||
+                e.keyCode == 18 ||
+                e.keyCode == 91 ||
+                e.keyCode == 93 ||
+                e.keyCode == 225
+            ) {
                 ed.closeHint();
             }
         }
