@@ -191,6 +191,9 @@ var createRow = function(place, title, description) {
 }
 
 var writeConfigJson = function(settings) {
+    if(process.cwd() != __dirname)
+        return;
+    
     fs.writeFileSync("settings.json", JSON.stringify(settings));
 }
 
