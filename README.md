@@ -21,7 +21,7 @@ npm start
 ```
 ## Configuration
 ### Linux
-If you want to run your C file with Run button, you must check terminal command in settings. If you don't have xterm in your computer run button doesn't work so you should read your favorite terminal emulator documentation and entry necessary command in terminal command in settings.
+If you want to run your C or C++ file, you should define your terminal and execution parameter in settings. It's defaultly **xterm -e**.
 
 ## LICENSE
 Copyright (c) Geside. All rights reserved.
