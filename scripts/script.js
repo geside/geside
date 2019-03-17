@@ -46,8 +46,7 @@ function fileLog() {
 		openSavedTab(logs[i++], logs[i++]);
 	}
 }
-
-var compile = function() {// compiling file using gcc
+var justCompile = function() {
 	if(tabs[getCurTabInd()].extension != ".c" && tabs[getCurTabInd()].extension != ".cpp"){
 		return;
 	}
@@ -60,16 +59,11 @@ var compile = function() {// compiling file using gcc
 	process.chdir(getCurTabPath());
 	var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension)
 
-	var execCode;
 	if(process.platform == "win32"){
 		compileCode = compiler + " -o " + fileName + " "+ fileName + tabs[getCurTabInd()].extension;
-		execCode = 'start cmd /c "' + fileName + ' && pause"';
 	}
 	else if(process.platform == "linux"){
 		compileCode = compiler + " " + fileName + tabs[getCurTabInd()].extension + " -o " + fileName;
-        execCode = settings["terminalCommand"] + ' ./"' + fileName + ';read"';
-        console.log(execCode);
-        // xterm -e
 	}
 
 	const child = exec(compileCode ,(error, stdout, stderr) => {
@@ -78,15 +72,23 @@ var compile = function() {// compiling file using gcc
 			console.log(error);
 			alert("There has been an error! \n\n\n" + stderr);
 			throw error;
-		}
-		else{
-			setTimeout(function(){
-				//shell.openItem(fileName);
-				exec(execCode);
-				process.chdir(__dirname);
-			}, 200)
-		}
-		})
+		}})
+}
+var compile = function() {// compiling file using gcc
+	justCompile();
+	var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension)
+	var execCode;
+	if(process.platform == "win32"){
+		execCode = 'start cmd /c "' + fileName + ' && pause"';
+	}
+	else if(process.platform == "linux"){
+        execCode = settings["terminalCommand"] + ' ./"' + fileName + ';read"';
+	}
+	process.chdir(getCurTabPath());
+	setTimeout(function() {
+		exec(execCode);
+		process.chdir(__dirname);
+	}, 200);
 }
 
 var saveFile = function() {
@@ -123,7 +125,7 @@ var openFile = function() {
 		process.chdir(dirname)
 		var text = gesReadFile(filename)
 		process.chdir(__dirname)
-		newTab(filename, text, dirname, extension)
+		newTab(filename, text, dirname, extension, contIfScriptable())
 		tabs[getCurTabInd()].firstContent = getCurTabText();
 		disp("none");
 	}
@@ -225,13 +227,14 @@ var tabs = new Array();
 
 var openedTab = document.createElement("div");
 openedTab.setAttribute("id", "openedTab");
-var newTab = function(title, text, path, extension) {  // these parameters are optional,
+var newTab = function(title, text, path, extension, isScriptable) {  // these parameters are optional,
 	tabIndex++;
 	var tabIndexStr = "tab-" + tabIndex;
 	var text = text || "";
 	var title = title || "untitled";
 	var path = path || null;
 	var extension = extension || "none";
+	//var isScriptable = isScriptable || true;
 	var firstContent;
 	var language;
 	var langDict = {
@@ -287,7 +290,8 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 		changed: false,
 		extension : extension,
 		language : language,
-		firstContent: text
+		firstContent: text,
+		isScriptable: isScriptable
 	};
 
     content.onkeydown = function(e) {
@@ -314,6 +318,9 @@ var newTab = function(title, text, path, extension) {  // these parameters are o
 	closeTabIcon.setAttribute("onclick", "closeTab()");
 	contExtForRunButton();  // for run button
 	contOverflowTabBar();   // we have to control each call newTab func
+	if(!contIfScriptable()){
+		showBesideScriptable();
+	}
 }
 
 var getCurTabInd = function() {  // get current tab index
@@ -435,6 +442,50 @@ var contOverflowTabBar = function() {
 	for(i = 0; i<contents.length; i++) {
 		contents[i].style.top = topPx;
 	}
+}
+var images = [".png", ".jpg", ".jpeg", ".jpe"];
+
+var contIfScriptable = function() {
+	var i;
+	for(i = 0; i < images.lenght; i++){
+		if(tabs[getCurTabInd()].extension == images[i])
+			return true;
+	}
+	return false;
+}
+
+var whatItIs = function() {
+	var i;
+	for(i = 0; i < images.length; i++){
+		if(tabs[getCurTabInd()].extension == images[i])
+			return "image";
+	}
+	return "normal file";
+}
+
+var showBesideScriptable = function() {
+	if(tabs[getCurTabInd()].isScriptable){
+		return;
+	}
+	var whatFile;
+	whatFile = whatItIs();
+	var backSlash = String.fromCharCode(92);
+	if(whatFile == "image"){
+	const remote = require("electron").remote;
+		var img = document.createElement("img");
+    	img.src = getCurTabPath() + backSlash + getCurTabTit();
+    	var cont = document.getElementsByClassName("content");
+    	//if(remote.getCurrentWindow().getBounds().height < )
+    	img.onload = function() {
+    		if(this.width > remote.getCurrentWindow().getBounds().width)
+    			this.style.width = remote.getCurrentWindow().getBounds().width + "px";
+    		if(this.height > remote.getCurrentWindow().getBounds().height)
+    			this.style.height = remote.getCurrentWindow().getBounds().height + "px";
+    	}
+    	cont[getCurTabInd()].appendChild(img);
+    	document.getElementsByClassName("CodeMirror")[getCurTabInd()].style.display = "none";
+	}
+
 }
 
 var setOpenedTabWidth = function() {
