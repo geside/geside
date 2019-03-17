@@ -51,6 +51,13 @@ menu.append(new MenuItem({
                 console.log("run clicked");
                 compile();
             }
+        },
+        {
+            label: "Compile",
+            click () {
+                console.log("run clicked");
+                justCompile();
+            }
         }
     ]})
 )
