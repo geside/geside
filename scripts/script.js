@@ -68,11 +68,9 @@ var justCompile = function() {
 
 	const child = exec(compileCode ,(error, stdout, stderr) => {
 		if(error){
-			console.error(stderr);
-			console.log(error);
-			alert("There has been an error! \n\n\n" + stderr);
             partError(stderr, getCurTabTit());
-			throw error;
+            openErrorBar();
+            throw error;
 		}})
 }
 var compile = function() {// compiling file using gcc
