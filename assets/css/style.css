@@ -346,6 +346,10 @@ input:checked + .slider:before {
     transition-duration: .5s;
 }
 
+.errorHeader th, td{
+  border-bottom: 1px solid gray;
+}
+
 .errorHeader th:nth-child(1) {
     width: 10%;
     text-align:left;

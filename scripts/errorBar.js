@@ -1,6 +1,3 @@
-
-console.log("merhaba dünya");
-
 var errorBar = document.createElement("div");
 errorBar.setAttribute("id", "errorBar");
 errorBar.setAttribute("class", "verticalSlider");
@@ -22,7 +19,6 @@ title.appendChild(errorLine);
 table.appendChild(title);
 
 errorBar.appendChild(table);
-
 var closeErrorBar = function() {
     errorBar.style.maxHeight = "0";
 }
@@ -50,15 +46,16 @@ var addError = function (errorText, errorLine) {
 
 
 var partError = function(error, title) {
+	while(table.childNodes[1]){
+		table.removeChild(table.childNodes[1])
+	}
     var errors = error.split(title);
-    var errorLines, lineOfError;
-    for(i = 0 ; i<errors.length; i++) {
+    var errorLines;
+    for(i = 1 ; i<errors.length; i++) {
         errors[i] = title + errors[i];
-		errorLines =  errors[i].split(":");
-        for(j = 1; j < 3; j++){
-        	lineOfError += errorLines[i];
-            console.log(lineOfError);
-        }
-        addError(errors[i],errorLines[i]);
+        errorLines = errors[i].split(":");
+        console.log(errors[i]);
+        addError(errors[i], errorLines[1] + ":" + errorLines[2]);
     }
+    
 }
