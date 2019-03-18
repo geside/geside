@@ -326,4 +326,40 @@ input:checked + .slider:before {
 
 /* ^ for settings tab */
 
+/* for error bar */
+#errorBar {
+    width:100%;
+    height: 25%;
+    background-color:#1d272c;
+    position: fixed;
+    bottom:0;
+}
+
+#errorTable {
+    width:100%;
+}
+
+.verticalSlider {
+    overflow-y: hidden;
+    max-height: 25%;
+    transition-property: all;
+    transition-duration: .5s;
+}
+
+.errorHeader th:nth-child(1) {
+    width: 10%;
+    text-align:left;
+}
+
+.errorHeader th:nth-child(2) {
+    width: 80%;
+    text-align:left;
+}
+
+.errorHeader th:nth-child(3) {
+    width: 10%;
+    text-align: left;
+    padding-right: 3px;
+}
+
 

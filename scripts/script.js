@@ -71,6 +71,7 @@ var justCompile = function() {
 			console.error(stderr);
 			console.log(error);
 			alert("There has been an error! \n\n\n" + stderr);
+            partError(stderr, getCurTabTit());
 			throw error;
 		}})
 }
