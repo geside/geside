@@ -27,7 +27,6 @@ var openErrorBar = function() {
     errorBar.style.maxHeight = "25%";
 }
 
-
 var number = 1;
 var addError = function (errorText, errorLine) {
     var tr = document.createElement("tr");
@@ -44,7 +43,6 @@ var addError = function (errorText, errorLine) {
     table.appendChild(tr);
 }
 
-
 var partError = function(error, title) {
 	while(table.childNodes[1]){
 		table.removeChild(table.childNodes[1])
@@ -57,5 +55,4 @@ var partError = function(error, title) {
         console.log(errors[i]);
         addError(errors[i], errorLines[1] + ":" + errorLines[2]);
     }
-    
 }

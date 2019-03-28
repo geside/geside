@@ -3,6 +3,7 @@ const exec = require('child_process').exec;
 var fs = require("fs");
 var path = require('path');
 const shell = require('electron').shell
+var backSlash = String.fromCharCode(92);
 // listens every key we pressed
 document.addEventListener("keydown", function(event) {
 	console.log(event.which);
@@ -75,7 +76,8 @@ var justCompile = function() {
 }
 var compile = function() {// compiling file using gcc
 	justCompile();
-	var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension)
+	var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension);
+	var curTabPath = getCurTabPath();
 	var execCode;
 	if(process.platform == "win32"){
 		execCode = 'start cmd /c "' + fileName + ' && pause"';
@@ -83,11 +85,18 @@ var compile = function() {// compiling file using gcc
 	else if(process.platform == "linux"){
         execCode = settings["terminalCommand"] + ' ./"' + fileName + ';read"';
 	}
-	process.chdir(getCurTabPath());
-	setTimeout(function() {
-		exec(execCode);
-		process.chdir(__dirname);
-	}, 200);
+	checkExeFile(fileName, execCode);
+}
+var checkExeFile = function(fileName, execCode) {
+	setTimeout(function () {
+		if(fs.existsSync(getCurTabPath() + backSlash + fileName + ".exe")){
+			process.chdir(getCurTabPath());
+			exec(execCode);
+			process.chdir(__dirname);
+			return;
+		}
+        checkExeFile(fileName, execCode);
+    }, 100);
 }
 
 var saveFile = function() {
@@ -468,7 +477,7 @@ var showBesideScriptable = function() {
 	}
 	var whatFile;
 	whatFile = whatItIs();
-	var backSlash = String.fromCharCode(92);
+	
 	if(whatFile == "image"){
 	const remote = require("electron").remote;
 		var img = document.createElement("img");
