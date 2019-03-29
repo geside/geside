@@ -10,6 +10,9 @@ document.addEventListener("keydown", function(event) {
   if(event.ctrlKey && event.which == "83"){
 		saveFile();
   }
+  if(event.ctrlKey && event.which == "66") {
+		justCompile();
+  }
   if(event.ctrlKey && event.which == "82") {
 		compile();
   }
@@ -17,7 +20,10 @@ document.addEventListener("keydown", function(event) {
 	closeTab(getCurTabInd());
   }
   if(event.ctrlKey && event.which == "9"){
-	goTab(getCurTabInd() + 1);
+  	if(getCurTabInd() + 1 == getTabLen())
+		goTab(0);
+	else
+		goTab(getCurTabInd() + 1);
   }
 });
 
@@ -86,6 +92,7 @@ var compile = function() {// compiling file using gcc
         execCode = settings["terminalCommand"] + ' ./"' + fileName + ';read"';
 	}
 	checkExeFile(fileName, execCode);
+	process.chdir(__dirname)
 }
 var checkExeFile = function(fileName, execCode) {
 	setTimeout(function () {
@@ -168,10 +175,12 @@ var saveTabs = function() {
 var closeAndOpenEveryTab = function() {
 	saveTabs();
 	var i = 0;
-	while(i <= getTabLen()){
+	var tabLen = getTabLen();
+	while(i < tabLen){
 		goTab(i);
 		saveFile();
 		closeTabHard();
+		console.log(i);
 		i++;
 	}
 	setTimeout(fileLog(), 200);
@@ -479,7 +488,6 @@ var showBesideScriptable = function() {
 	whatFile = whatItIs();
 	
 	if(whatFile == "image"){
-	const remote = require("electron").remote;
 		var img = document.createElement("img");
     	img.src = getCurTabPath() + backSlash + getCurTabTit();
     	var cont = document.getElementsByClassName("content");
@@ -493,7 +501,6 @@ var showBesideScriptable = function() {
     	cont[getCurTabInd()].appendChild(img);
     	document.getElementsByClassName("CodeMirror")[getCurTabInd()].style.display = "none";
 	}
-
 }
 
 var setOpenedTabWidth = function() {
