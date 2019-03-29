@@ -444,12 +444,18 @@ var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyo
 	if(getTabLen() > 0 && tabs[getCurTabInd()].extension!=".c" && tabs[getCurTabInd()].extension != ".cpp") {
 		// hide
 		runButton.style.display = "none";
+        errorBar.style.display = "none";
+        errorBarMinimizeButton.style.display = "none";
 	} else {
 		// visible
 		runButton.style.display = "inline-block";
+        errorBar.style.display = "block";
+        errorBarMinimizeButton.style.display = "block";
 	}
 	if(getTabLen() == 0){
 		runButton.style.display = "none";
+        errorBar.style.display = "none";
+        errorBarMinimizeButton.style.display = "none";
 	}
 }
 
@@ -494,7 +500,7 @@ var showBesideScriptable = function() {
 	}
 	var whatFile;
 	whatFile = whatItIs();
-	
+
 	if(whatFile == "image"){
 		var img = document.createElement("img");
     	img.src = getCurTabPath() + backSlash + getCurTabTit();

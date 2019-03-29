@@ -21,10 +21,14 @@ table.appendChild(title);
 errorBar.appendChild(table);
 var closeErrorBar = function() {
     errorBar.style.maxHeight = "0";
+    minimizedErrorBar = true;
+    errorBarMinimizeButton.style.top = "calc(100% - 30px)";
 }
 
 var openErrorBar = function() {
     errorBar.style.maxHeight = "25%";
+    minimizedErrorBar = false;
+    errorBarMinimizeButton.style.top = "calc(75% - 30px)";
 }
 
 var number = 1;
@@ -56,3 +60,26 @@ var partError = function(error, title) {
         addError(errors[i], errorLines[1] + ":" + errorLines[2]);
     }
 }
+
+var minimizedErrorBar = true;
+var errorBarMinimizeButton = document.createElement("div");
+
+var createErrorBarMinimizeButton = function() {
+    var i = document.createElement("i");
+    errorBarMinimizeButton.setAttribute("id", "errorBarMinimizeButton");
+    errorBarMinimizeButton.setAttribute("onclick", "toggleErrorBar()");
+    errorBarMinimizeButton.setAttribute("class", "verticalSlider");
+    i.setAttribute("class", "far fa-window-minimize");
+    errorBarMinimizeButton.appendChild(i);
+    document.body.appendChild(errorBarMinimizeButton);
+}
+
+var toggleErrorBar = function() {
+    if(minimizedErrorBar)
+        openErrorBar();
+    else
+        closeErrorBar();
+}
+
+createErrorBarMinimizeButton();
+closeErrorBar();

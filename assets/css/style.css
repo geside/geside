@@ -333,6 +333,7 @@ input:checked + .slider:before {
     background-color:#1d272c;
     position: fixed;
     bottom:0;
+    overflow: scroll;
 }
 
 #errorTable {
@@ -365,5 +366,16 @@ input:checked + .slider:before {
     text-align: left;
     padding-right: 3px;
 }
+
+#errorBarMinimizeButton {
+    width:27px;
+    height:27px;
+    border-radius:4px;
+    position:fixed;
+    top: calc(75% - 30px);
+    right:10px;
+}
+
+/* ^ for error bar */
 
 
