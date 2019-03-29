@@ -1,5 +1,6 @@
 // Modules to control application life and create native browser window
 const {app, Menu, BrowserWindow, Tray} = require('electron')
+const MenuItem = require('electron').MenuItem;
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
@@ -12,11 +13,95 @@ function createWindow () {
     height: 600,
     icon: __dirname + '/assets/icons/geside.png'
   })
+  // Create context menu
+  const ctxMenu = new Menu();
+  ctxMenu.append(new MenuItem({
+      label: 'Build',
+      accelerator: 'Ctrl-B',
+      click() {
+        mainWindow.send('build')
+      }
+  }))
+  ctxMenu.append(new MenuItem({
+      label: 'Run',
+      accelerator: 'Ctrl+R',
+      click() {
+        mainWindow.send('run')
+      }
+  }))
+  ctxMenu.append(new MenuItem({
+      type: 'separator'
+  }))
+  ctxMenu.append(new MenuItem({
+      label: 'Undo',
+      accelerator: 'Ctrl+Z',
+      click() {
+        mainWindow.send('undo')
+      }
+  }))
+  ctxMenu.append(new MenuItem({
+      label: 'Redo',
+      accelerator: 'Ctrl+Y',
+      click() {
+        mainWindow.send('redo')
+      }
+  }))
+  ctxMenu.append(new MenuItem({
+      type: 'separator'
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'cut',
+      accelerator: 'Ctrl+X',
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'copy',
+      accelerator: 'Ctrl+C',
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'paste',
+      accelerator: 'Ctrl+V',
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'delete'
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'selectAll',
+      accelerator: 'Ctrl+A',
+  }))
+  ctxMenu.append(new MenuItem({
+      type: 'separator'
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'reload'
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'toggleFullScreen'
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'toggleDevTools'
+  }))
+  ctxMenu.append(new MenuItem({
+      label: 'Settings',
+      click(){
+          mainWindow.send('openSettings')
+      }
+  }))
+  ctxMenu.append(new MenuItem({
+      type: 'separator'
+  }))
+  ctxMenu.append(new MenuItem({
+      role: 'quit'
+  }))
+
+
+  mainWindow.webContents.on('context-menu', function(e, params){
+      ctxMenu.popup(mainWindow, params.x, params.y);
+  })
   // and load the index.html of the app.
   mainWindow.loadFile('index.html')
   
   // Open the DevTools.   
-   mainWindow.webContents.openDevTools()  // developer aracını başlangıçta açmak için
+   //mainWindow.webContents.openDevTools()  // developer aracını başlangıçta açmak için
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
