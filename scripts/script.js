@@ -96,7 +96,15 @@ var compile = function() {// compiling file using gcc
 }
 var checkExeFile = function(fileName, execCode) {
 	setTimeout(function () {
+		if(process.platform == "win32"){
 		if(fs.existsSync(getCurTabPath() + backSlash + fileName + ".exe")){
+			process.chdir(getCurTabPath());
+			exec(execCode);
+			process.chdir(__dirname);
+			return;
+		}}
+		else{
+			if(fs.existsSync(getCurTabPath() + "/" + fileName)){
 			process.chdir(getCurTabPath());
 			exec(execCode);
 			process.chdir(__dirname);
