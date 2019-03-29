@@ -109,7 +109,7 @@ var checkExeFile = function(fileName, execCode) {
 			exec(execCode);
 			process.chdir(__dirname);
 			return;
-		}
+		}}
         checkExeFile(fileName, execCode);
     }, 100);
 }
