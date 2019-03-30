@@ -23,12 +23,15 @@ var closeErrorBar = function() {
     errorBar.style.maxHeight = "0";
     minimizedErrorBar = true;
     errorBarMinimizeButton.style.top = "calc(100% - 30px)";
+    errorBarMinimizeButton.childNodes[0].setAttribute("class", "fas fa-exclamation-circle");
 }
 
 var openErrorBar = function() {
     errorBar.style.maxHeight = "25%";
     minimizedErrorBar = false;
     errorBarMinimizeButton.style.top = "calc(75% - 30px)";
+    errorBarMinimizeButton.childNodes[0].setAttribute("class", "fas fa-window-minimize");
+
 }
 
 var number = 1;
@@ -37,6 +40,7 @@ var addError = function (errorText, errorLine) {
     var tdNumber = document.createElement("td");
     var tdError = document.createElement("td");
     var tdErrorLine = document.createElement("td");
+    tr.setAttribute("class", "trError");
     tdErrorLine.style.textAlign = 'left';
     tdNumber.innerText = number++;
     tdError.innerText = errorText;
@@ -45,6 +49,16 @@ var addError = function (errorText, errorLine) {
     tr.appendChild(tdError);
     tr.appendChild(tdErrorLine);
     table.appendChild(tr);
+}
+
+var removeErrors = function() {
+    number = 1;
+    var errors = document.getElementsByClassName("trError");
+    var len = errors.length;
+    for (i = 0; i<len; i++) {
+        errors[0].remove();
+    }
+    closeErrorBar();
 }
 
 var partError = function(error, title) {

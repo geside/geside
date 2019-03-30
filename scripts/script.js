@@ -74,6 +74,7 @@ var justCompile = function() {
 	}
 
 	const child = exec(compileCode ,(error, stdout, stderr) => {
+        removeErrors();
 		if(error){
             partError(stderr, getCurTabTit());
             openErrorBar();
@@ -458,6 +459,8 @@ var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyo
         errorBarMinimizeButton.style.display = "none";
 	}
 }
+
+contExtForRunButton();  // for openning first time
 
 /* for openedTab's scroll bar */
 var contOverflowTabBar = function() {
