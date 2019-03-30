@@ -1,5 +1,6 @@
 const { dialog } = require('electron').remote
-const exec = require('child_process').execSync;
+const exec = require('child_process').exec;
+const execSync = require('child_process').execSync;
 var fs = require("fs");
 var path = require('path');
 const shell = require('electron').shell
@@ -99,14 +100,14 @@ var checkExeFile = function(fileName, execCode) {
 		if(process.platform == "win32"){
 		if(fs.existsSync(getCurTabPath() + backSlash + fileName + ".exe")){
 			process.chdir(getCurTabPath());
-			exec(execCode);
+			execSync(execCode);
 			process.chdir(__dirname);
 			return;
 		}}
 		else{
 			if(fs.existsSync(getCurTabPath() + "/" + fileName)){
 			process.chdir(getCurTabPath());
-			exec(execCode);
+			execSync(execCode);
 			process.chdir(__dirname);
 			return;
 		}}
