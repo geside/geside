@@ -1,5 +1,5 @@
 const { dialog } = require('electron').remote
-const exec = require('child_process').exec;
+const exec = require('child_process').execSync;
 var fs = require("fs");
 var path = require('path');
 const shell = require('electron').shell
