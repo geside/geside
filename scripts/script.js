@@ -74,26 +74,38 @@ var justCompile = function() {
 		compileCode = compiler + " " + fileName + tabs[getCurTabInd()].extension + " -o " + fileName;
 	}
 
-	const child = exec(compileCode ,(error, stdout, stderr) => {
+	exec(compileCode ,(error, stdout, stderr) => {
 		if(error){
+			isErrorExist = true;
             partError(stderr, getCurTabTit());
             openErrorBar();
             throw error;
+		}
+		else {
+			isErrorExist = false;
 		}})
 }
+var isErrorExist;
 var compile = function() {// compiling file using gcc
 	justCompile();
-	var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension);
-	var curTabPath = getCurTabPath();
-	var execCode;
-	if(process.platform == "win32"){
-		execCode = 'start cmd /c "' + fileName + ' && pause"';
-	}
-	else if(process.platform == "linux"){
-        execCode = settings["terminalCommand"] + ' ./"' + fileName + ';read"';
-	}
-	checkExeFile(fileName, execCode);
-	process.chdir(__dirname)
+	setTimeout(function(){
+		if(isErrorExist){
+			console.log("hata!");
+			return;
+		}
+		var fileName = path.basename(getCurTabTit(), tabs[getCurTabInd()].extension);
+		var curTabPath = getCurTabPath();
+		var execCode;
+		if(process.platform == "win32"){
+			execCode = 'start cmd /c "' + fileName + ' && pause"';
+		}
+		else if(process.platform == "linux"){
+	        execCode = settings["terminalCommand"] + ' ./"' + fileName + ';read"';
+		}
+		checkExeFile(fileName, execCode);
+		process.chdir(__dirname)
+	} , 600)
+	
 }
 var checkExeFile = function(fileName, execCode) {
 	setTimeout(function () {
@@ -569,3 +581,22 @@ var getDisp= function() {
 	var uns = document.getElementsByClassName("unsaved");
 	return uns[getCurTabInd()].style.display
 }
+
+document.addEventListener("mousedown", function(e) {
+	if(e.button == "1"){
+		var index;
+		document.addEventListener("mousemove", function() {
+		var a = document.getElementsByClassName("tab")// a is for getting tab array
+			for(i = 0; i < a.length; i++){
+				if(e.path[1] == a[i]){
+					index = i;
+					console.log(index);
+					break;
+				}
+			}
+		})
+		console.log(index);
+		goTab(index);
+		closeTab();
+	}
+});
