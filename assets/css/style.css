@@ -1,3 +1,7 @@
+@font-face {
+	font-family: Noto Sans;
+	src: url("../fonts/NotoSans-Regular.ttf")format("truetype");
+}
 * {
   margin: 0;
   padding: 0;
@@ -10,13 +14,12 @@ body {
     height:100%;
     color: #ddd;
     background:  #333;
-    font-family: "noto sans";
+    font-family: Noto Sans;
     user-select:none;
 }
 .codeArea {
     background-color: #7697a0; 
-    color:  #ddddda; 
-    
+    color:  #ddddda;
     width: 100%;
     height: 500px;
 }
@@ -446,6 +449,4 @@ input:checked + .slider:before {
 
 
 /* ^ for folder tree */
-
-
 
