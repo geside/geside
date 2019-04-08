@@ -34,6 +34,12 @@ menu.append(new MenuItem({
             }
         },
         {
+            label: "Open Folder",
+            click () {
+                openFolder();
+            }
+        },
+        {
             label: "Save File",
             click() {
                 saveFile();
@@ -45,13 +51,13 @@ menu.append(new MenuItem({
 menu.append(new MenuItem({
     label: 'Edit',
     submenu : [
-        { 
-        	label: "Undo", 
+        {
+        	label: "Undo",
         	accelerator: 'Ctrl+Z',
 	        click() {
 	        	tabs[getCurTabInd()].editor.undo();
 	        } },
-        { 
+        {
         	label: "Redo",
         	accelerator: 'Ctrl+Y',
          	click() {

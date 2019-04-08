@@ -77,6 +77,8 @@ label i:hover.fa-times {
 /* for tab */
 #tabs {
   position: relative;   
+  left:44px;    /* for folder tree icon */
+  transition-duration: .5s;
   clear: both;
   overflow-x:auto;
   white-space: nowrap;
@@ -105,6 +107,7 @@ label i:hover.fa-times {
   position: fixed;
   top: 43px;
   left: 0;
+  transition-duration: .5s;
   background: 	#232b2b;
   right: 0;
   bottom: 0;
@@ -335,6 +338,7 @@ input:checked + .slider:before {
     height: 25%;
     background-color:#1d272c;
     position: fixed;
+    transition-duration: .5s;
     bottom:0;
     overflow: scroll;
 }
@@ -379,4 +383,70 @@ input:checked + .slider:before {
     right:10px;
 }
 
+
 /* ^ for error bar */
+
+
+/* for folder tree */
+#treeFolderArea {
+    background-color:#414a4c;
+    overflow-y:auto;
+    width:100%;
+    height:100%;
+    position:fixed;
+    top:0;
+    left:0;
+    z-index: 2;
+}
+
+.horizontalSlider {
+	overflow-y: hidden;
+	max-width: 250px;
+
+	transition-property: all;
+	transition-duration: .5s;
+}
+
+#treeFolderUl {
+    list-style:none;
+    padding:5px;
+}
+
+#treeFolderUl * li {
+    list-style:none;
+    font-size:15px;
+    padding-top:2px;
+    padding-bottom:2px;
+}
+
+.closedFolder {
+    display:none;
+}
+
+.openedFolder {
+    display:block;
+}
+
+#treeFolderUl li span {
+    padding-left:5px;
+}
+
+#folderTreeIcon {
+    width:44px;
+    height:44px;
+    position: fixed;
+    left:0px;
+    top:0px;
+    transition-duration: .5s;
+}
+
+#folderTreeIcon i {
+    font-size: 22px;
+    line-height: 44px;
+    width: 100%;
+    text-align:center;
+}
+
+
+/* ^ for folder tree */
+

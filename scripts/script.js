@@ -472,6 +472,8 @@ var contExtForRunButton = function() {  // her tab değişikliğinde bu fonksiyo
 	}
 }
 
+contExtForRunButton();  // for openning first time
+
 /* for openedTab's scroll bar */
 var contOverflowTabBar = function() {
 	setOpenedTabWidth();
