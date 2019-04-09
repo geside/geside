@@ -105,7 +105,7 @@ var compile = function() {// compiling file using gcc
 		checkExeFile(fileName, execCode);
 		process.chdir(__dirname)
 	} , 600)
-	
+
 }
 var checkExeFile = function(fileName, execCode) {
 	setTimeout(function () {
@@ -139,8 +139,12 @@ var saveFile = function() {
 	}
 }
 
-var openFile = function() {
-	var file = dialog.showOpenDialog({ properties: ['openFile']}) + "";
+var openFile = function(filePath) {
+    if(filePath==undefined) {
+        var file = dialog.showOpenDialog({ properties: ['openFile']}) + "";
+    } else {
+        file = filePath;
+    }
 	//path.split('\\').pop().split('/').pop();
 	var filename = path.parse(file).base;// main.c gibi dosya ismi
 	var extension = path.extname(filename)
@@ -331,6 +335,14 @@ var newTab = function(title, text, path, extension, isScriptable) {  // these pa
 		firstContent: text,
 		isScriptable: isScriptable
 	};
+
+    if(folderTreeOpened) {
+        content.style.transitionDuration = "0s";  // for canceling the animation
+        content.style.left = folderTreeWidth;
+        setTimeout(function() {
+            content.style.transitionDuration = ".5s";
+        }, 100);
+    }
 
     content.onkeydown = function(e) {
         // unnecessary keys for auto complete
@@ -534,10 +546,13 @@ var showBesideScriptable = function() {
 
 var setOpenedTabWidth = function() {
 	var titles = document.getElementsByClassName("title");
-	var width = 0;
+	var width = 44;
 	for(i = 0 ; i<titles.length; i++) {
 		width += titles[i].offsetWidth;
 	}
+    if(folderTreeOpened) {
+        width += folderTreeWidthInt;
+    }
 	openedTab.style.width = width + "px";
 }
 
