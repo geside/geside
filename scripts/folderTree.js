@@ -29,7 +29,7 @@ var createFolderTree = function() {
 
     // icon
     folderTreeIcon.setAttribute("id", "folderTreeIcon");
-    folderTreeIcon.setAttribute("onclick", "toggleFolderTree()");
+    folderTreeIcon.setAttribute("onclick", "toggleFolderTree(); contOverflowTabBar();");
     folderTreeIconFA.setAttribute("class", "fas fa-folder");
 
     folderTreeIcon.appendChild(folderTreeIconFA);
@@ -40,7 +40,8 @@ var createFolderTree = function() {
 }
 
 var openFolderTree = function() {
-    area.style.maxWidth =folderTreeWidth;
+    //area.style.maxWidth =folderTreeWidth;
+    area.style.left = "0";
     errorBar.style.left =folderTreeWidth;
     errorBar.style.maxWidth = "calc( 100% - "+ folderTreeWidth+ " )";
     tabS.style.left = folderTreeWidthInt + 44 + "px";
@@ -53,12 +54,12 @@ var openFolderTree = function() {
 }
 
 var closeFolderTree = function() {
-    //area.style.display = "none";
-    area.style.maxWidth = "0";
+    //area.style.maxWidth = "0";
+    area.style.left = "-" + folderTreeWidth;
     errorBar.style.left = "0";
     errorBar.style.maxWidth = "100%";
     tabS.style.left = "44px";
-    tabS.style.maxWidth = "100%";
+    tabS.style.maxWidth = "calc( 100% - 44px)";
     folderTreeIcon.style.left = "0";
     for(i = 0; i<contents.length; i++) {
         contents[i].style.left = "0";
@@ -78,6 +79,9 @@ var toggleFolderTree = function() {
 
 var folderInd = 0;
 var folderList = new Array();
+
+var lineInd = 0;
+var lineList = new Array();  // only file, there isn't folder
 
 var openFolder = function() {
 	var mainFolder = dialog.showOpenDialog({ properties: ['openDirectory']}) + "";
@@ -145,7 +149,13 @@ var addLine = function(parentUl, name, type) {
     title.appendChild(text);
     li.appendChild(title);
 
-    li.style.paddingLeft = parentUl.tabFactor * 6 + "px";
+    console.log(parentUl.path + "/" + name);
+    title.setAttribute("onclick", "openFile('" + parentUl.path + "/" + name + "')");
+
+    li.style.paddingLeft = parentUl.tabFactor * 6 + "px";  // tab
+
+    //lineList[lineInd] = title;
+    //lineInd++;
 
     parentUl.appendChild(li);
     return [li, title];
