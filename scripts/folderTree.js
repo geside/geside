@@ -1,4 +1,9 @@
 
+var slash = "/";
+if(process.platform == "win32"){
+    slash = "\\\\";
+}
+
 var folderTreeWidthInt = 250;
 var folderTreeWidth = folderTreeWidthInt + "px";
 
@@ -97,7 +102,7 @@ var loadMainFolder = function(path) {
         var cw = addFolder(ul, getNameFromPath(path), true);
         var arr = fs.readdirSync(path);
         for (i = 0; i<arr.length; i++) {
-            if(isFolder(path + "/"+ arr[i])) {
+            if(isFolder(path + slash + arr[i])) {
                 addFolder(cw, arr[i], false);
             } else {
                 addLine(cw, arr[i], detectFileType(arr[i]));
@@ -124,7 +129,7 @@ var addFolder = function(parentUl, name, isMain) {
         childrenWrapper.path = parentUl.path;
         childrenWrapper.loaded = true;
     } else {
-        childrenWrapper.path = parentUl.path + "/" + name;
+        childrenWrapper.path = parentUl.path + slash + name;
         childrenWrapper.loaded = false;
     }
     //console.log(childrenWrapper.path);
@@ -138,6 +143,11 @@ var addFolder = function(parentUl, name, isMain) {
 
 var addLine = function(parentUl, name, type) {
 
+    var pth = parentUl.path;
+    if(process.platform) {
+        pth = fixPathInWin32(pth);
+    }
+
     var li = document.createElement("li");
     var icon = document.createElement("i");
     var text = document.createElement("span");
@@ -149,8 +159,7 @@ var addLine = function(parentUl, name, type) {
     title.appendChild(text);
     li.appendChild(title);
 
-    console.log(parentUl.path + "/" + name);
-    title.setAttribute("onclick", "openFile('" + parentUl.path + "/" + name + "')");
+    title.setAttribute("onclick", "openFile('" + pth + slash + name + "')");
 
     li.style.paddingLeft = parentUl.tabFactor * 6 + "px";  // tab
 
@@ -223,16 +232,23 @@ var detectFileType = function(name) {
 }
 
 var getNameFromPath = function(path) {
-    var slash = "/";
-	if(process.platform == "win32"){
-        slash = "\\";
-	}
     var pathArr = path.split(slash);
     if(pathArr[pathArr.length - 1]=='') {
         return pathArr[pathArr.length - 2];   //  example  /home/yunusemre/
     } else {
         return pathArr[pathArr.length - 1];
     }
+}
+
+var fixPathInWin32 = function (pth) {
+    var newPath = "";
+    var p = pth.split("\\");
+    for (var i = 0; i<p.length-1; i++) {
+        newPath += p[i];
+        newPath += "\\\\";
+    }
+    newPath += p[p.length-1];
+    return newPath;
 }
 
 
