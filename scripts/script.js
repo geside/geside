@@ -83,6 +83,8 @@ var justCompile = function() {
 		}
 		else {
 			isErrorExist = false;
+			removeErrors();
+			closeErrorBar();
 		}})
 }
 var isErrorExist;
@@ -609,22 +611,25 @@ var getDisp= function() {
 	var uns = document.getElementsByClassName("unsaved");
 	return uns[getCurTabInd()].style.display
 }
-
+/*
 document.addEventListener("mousedown", function(e) {
 	if(e.button == "1"){
-		var index;
+		console.log(e);
+		//var index;
 		document.addEventListener("mousemove", function() {
 		var a = document.getElementsByClassName("tab")// a is for getting tab array
+		console.log(a);
 			for(i = 0; i < a.length; i++){
-				if(e.path[1] == a[i]){
-					index = i;
-					console.log(index);
-					break;
+				if(e.path[3] == a[i] && e.path[2] != a[i]){
+					goTab(i);
+					closeTab();
+					return;
 				}
 			}
+			console.log(e.path[1]);
+			console.log(a[index]);*
+			
 		})
-		console.log(index);
-		goTab(index);
-		closeTab();
 	}
 });
+*/
