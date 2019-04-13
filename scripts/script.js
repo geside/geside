@@ -143,6 +143,17 @@ var openFile = function(filePath) {
     if(filePath==undefined) {
         var file = dialog.showOpenDialog({ properties: ['openFile']}) + "";
     } else {
+        if(process.platform=="win32") {
+            var p = filePath.split("\\");
+            newFilePath = "";
+            for(t = 0; t<p.length; t++) {
+                newFilePath += p[t];
+                if(t==p.length-1) {
+                    break;
+                }
+                newFilePath+= "\\\\";
+            }
+        }
         file = filePath;
     }
 	//path.split('\\').pop().split('/').pop();
