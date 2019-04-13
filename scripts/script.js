@@ -44,9 +44,47 @@ function myCallback() {
 				disp("block");
 	}
 }
+var windowSize;
+window.setInterval(function(){
+	if((windowSize.width != remote.getCurrentWindow().getBounds().width || windowSize.height != remote.getCurrentWindow().getBounds().height) && whatItIs() == "image"){
+		windowSize = remote.getCurrentWindow().getBounds(); // get elements by diyerek img alabilirim
+		var img = document.getElementsByClassName("img");
+		//for(i = 0; i < getTabLen(); i++){
+			var i = 0;
+			var wh = parseInt(img[i].style.width) / parseInt(img[i].style.height)
+			if(parseInt(img[i].style.width) < remote.getCurrentWindow().getBounds().width) {
+				img[i].style.width = remote.getCurrentWindow().getBounds().width + "px";
+				img[i].style.height = (parseInt(img[i].style.width) / wh) + "px";
+				console.log("1");
+			}
+			else if(parseInt(img[i].style.width) > remote.getCurrentWindow().getBounds().width){
+				img[i].style.height = remote.getCurrentWindow().getBounds().height + "px";
+				img[i].style.width = (parseInt(img[i].style.height) * wh) + "px";
+				console.log("2");
+			}
+			else if(parseInt(img[i].style.height) < remote.getCurrentWindow().getBounds().height){
+				img[i].style.height = remote.getCurrentWindow().getBounds().height + "px";
+				img[i].style.width = (parseInt(img[i].style.height) * wh) + "px";
+				console.log("3");
+			}
+			else if(parseInt(img[i].style.height) > remote.getCurrentWindow().getBounds().height){
+				img[i].style.width = remote.getCurrentWindow().getBounds().width + "px";
+				img[i].style.height = (parseInt(img[i].style.width) / wh) + "px";
+				console.log("4");
+			}
+		//}
+		/*openSavedTab(getCurTabPath(), getCurTabTit());
+		goTab(getCurTabInd() - 1);
+		closeTab();*/
+	}
+	else{
+		return;
+	}
+}, 1000);
 // Opens all tabs before program closed
 window.onload =fileLog;
 function fileLog() {
+	windowSize = remote.getCurrentWindow().getBounds();
 	var log = gesReadFile("tabs.log");
 	logs = log.split("\n");
 	var i = 0;
@@ -543,17 +581,57 @@ var showBesideScriptable = function() {
 
 	if(whatFile == "image"){
 		var img = document.createElement("img");
+		img.setAttribute("class", "img");
     	img.src = getCurTabPath() + backSlash + getCurTabTit();
     	var cont = document.getElementsByClassName("content");
     	//if(remote.getCurrentWindow().getBounds().height < )
-    	img.onload = function() {
+    	resizeImage(img);
+    	/*img.onload = function() {
     		if(this.width > remote.getCurrentWindow().getBounds().width)
     			this.style.width = remote.getCurrentWindow().getBounds().width + "px";
     		if(this.height > remote.getCurrentWindow().getBounds().height)
     			this.style.height = remote.getCurrentWindow().getBounds().height + "px";
-    	}
+    	}*/
     	cont[getCurTabInd()].appendChild(img);
     	document.getElementsByClassName("CodeMirror")[getCurTabInd()].style.display = "none";
+	}
+}
+
+var resizeImage = function (img) {
+	img.onload = function() {
+		var wh = this.width / this.height;
+		console.log(img.clientWidth);
+		console.log(img.height);
+		//console.log(wh)
+		if(this.style.width != remote.getCurrentWindow().getBounds().width){
+			console.log(this.style.width + "                          " + remote.getCurrentWindow().getBounds().width)
+			if(this.style.width < remote.getCurrentWindow().getBounds().width) {
+	    		this.style.height = (remote.getCurrentWindow().getBounds().height) + "px";
+	    		this.style.width = (remote.getCurrentWindow().getBounds().height * wh) + "px";
+	    		console.log(this.style.width);
+	    		console.log(this.style.height);
+    		}
+    		else{
+    			this.style.width = (remote.getCurrentWindow().getBounds().width) + "px";
+    			//console.log(remote.getCurrentWindow().getBounds().width)
+    			this.style.height = (remote.getCurrentWindow().getBounds().width * wh) + "px";
+    			console.log("2");
+    		}
+		}
+    	else if(this.style.height != remote.getCurrentWindow().getBounds().height){
+    		if(this.style.height < remote.getCurrentWindow().getBounds().height){
+	    		this.style.width = (remote.getCurrentWindow().getBounds().width) + "px";
+	    		//console.log(remote.getCurrentWindow().getBounds().width)
+	    		this.style.height = (remote.getCurrentWindow().getBounds().width / wh);
+	    		console.log("3");
+    		}
+    		else{
+    			this.style.height = (remote.getCurrentWindow().getBounds().height) + "px";
+	    		//console.log(remote.getCurrentWindow().getBounds().height)
+	    		this.style.width = (remote.getCurrentWindow().getBounds().height / wh) + "px";
+	    		console.log("4")
+    		}
+    	}
 	}
 }
 
