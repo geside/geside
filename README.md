@@ -22,7 +22,8 @@ npm start
 ## Configuration
 ### Linux
 If you want to run your C or C++ file, you should define your terminal and execution parameter in settings. It's defaultly **xterm -e**.
-
+## Important
+Currently we can not provide *MacOS* support.
 ## LICENSE
 Copyright (c) Geside. All rights reserved.
 
