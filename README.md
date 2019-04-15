@@ -9,6 +9,8 @@
 * [npm](https://www.npmjs.com/)
 
 ## Installation
+You can download the exe file for *Windows* from **[here](https://github.com/geside/geside/releases)**
+### Developer
 You can simply clone this repository into your local drive by using these one by one:
 ```
 git clone https://github.com/geside/geside.git
